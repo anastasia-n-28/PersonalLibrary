@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using System.Text.Json;
 
-namespace PersonalLibrary
+namespace PersonalLibrary.Models
 {
     public class Library
     {
@@ -30,6 +32,21 @@ namespace PersonalLibrary
                     Console.WriteLine(book.GetInfo());
                 }
             }
+        }
+
+        public void SerializeData(string path)
+        {
+            string json = JsonSerializer.Serialize(Sections, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(path, json);
+        }
+
+        public void DeserializeData(string path)
+        {
+            if (!File.Exists(path)) return;
+            string json = File.ReadAllText(path);
+            var sections = JsonSerializer.Deserialize<List<LibrarySection>>(json);
+            if (sections != null)
+                Sections = sections;
         }
     }
 }

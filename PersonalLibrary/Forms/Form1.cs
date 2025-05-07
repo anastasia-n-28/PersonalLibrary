@@ -1,3 +1,5 @@
+using PersonalLibrary.Models;
+
 namespace PersonalLibrary
 {
     public partial class Form1 : Form
