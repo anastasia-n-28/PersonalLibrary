@@ -48,5 +48,19 @@ namespace PersonalLibrary.Models
             if (sections != null)
                 Sections = sections;
         }
+
+        public void AddBook(string sectionName, Book book)
+        {
+            var section = Sections.FirstOrDefault(s => s.Name == sectionName);
+            if (section != null)
+                section.Books.Add(book);
+        }
+
+        public void RemoveBook(string sectionName, Book book)
+        {
+            var section = Sections.FirstOrDefault(s => s.Name == sectionName);
+            if (section != null)
+                section.Books.Remove(book);
+        }
     }
 }
