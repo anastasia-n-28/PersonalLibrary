@@ -62,5 +62,40 @@ namespace PersonalLibrary.Models
             if (section != null)
                 section.Books.Remove(book);
         }
+
+        public void AddSection(string sectionName)
+        {
+            if (string.IsNullOrWhiteSpace(sectionName))
+                throw new ArgumentException("Назва розділу не може бути порожньою");
+
+            if (Sections.Any(s => s.Name.Equals(sectionName, StringComparison.OrdinalIgnoreCase)))
+                throw new ArgumentException("Розділ з такою назвою вже існує");
+
+            Sections.Add(new LibrarySection { Name = sectionName });
+        }
+
+        public void RemoveSection(string sectionName)
+        {
+            var section = Sections.FirstOrDefault(s => s.Name.Equals(sectionName, StringComparison.OrdinalIgnoreCase));
+            if (section != null)
+            {
+                Sections.Remove(section);
+            }
+        }
+
+        public void RenameSection(string oldName, string newName)
+        {
+            if (string.IsNullOrWhiteSpace(newName))
+                throw new ArgumentException("Нова назва розділу не може бути порожньою");
+
+            if (Sections.Any(s => s.Name.Equals(newName, StringComparison.OrdinalIgnoreCase)))
+                throw new ArgumentException("Розділ з такою назвою вже існує");
+
+            var section = Sections.FirstOrDefault(s => s.Name.Equals(oldName, StringComparison.OrdinalIgnoreCase));
+            if (section != null)
+            {
+                section.Name = newName;
+            }
+        }
     }
 }
