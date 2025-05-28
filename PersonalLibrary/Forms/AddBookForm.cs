@@ -11,6 +11,7 @@ namespace PersonalLibrary.Forms
         public AddBookForm()
         {
             InitializeComponent();
+            cmbStatus.DataSource = Enum.GetValues(typeof(BookStatus));
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -38,7 +39,7 @@ namespace PersonalLibrary.Forms
                 Year = year,
                 ISBN = txtISBN.Text,
                 Origin = txtOrigin.Text,
-                Status = new BookStatus { IsAvailable = true, Condition = "New" },
+                Status = (BookStatus)cmbStatus.SelectedItem,
                 Rating = new UserRating { Score = 0, Review = "" }
             };
             DialogResult = DialogResult.OK;

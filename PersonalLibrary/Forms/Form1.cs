@@ -1,5 +1,6 @@
 using PersonalLibrary.Models;
 using PersonalLibrary.Forms;
+using Microsoft.VisualBasic;
 
 namespace PersonalLibrary
 {
@@ -7,6 +8,7 @@ namespace PersonalLibrary
     {
         private Library _library;
         private const string DataFile = "library.json";
+        private ContextMenuStrip dgvContextMenu;
         
         public Form1()
         {
@@ -26,6 +28,7 @@ namespace PersonalLibrary
                 _library = TestDataGenerator.Generate();
             }
             UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
+            //InitializeDataGridViewContextMenu();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -42,6 +45,17 @@ namespace PersonalLibrary
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
+        {
+            var title = txtTitle.Text;
+            var author = txtAuthor.Text;
+            var publisher = txtPublisher.Text;
+
+            var results = _library.FindBooks(title, author, publisher);
+            dgvBooks.DataSource = null;
+            dgvBooks.DataSource = results;
+        }
+
+        private void btnDeepSearch_Click(object sender, EventArgs e)
         {
             using (var form = new AdvancedSearchForm(_library))
             {
@@ -138,9 +152,13 @@ namespace PersonalLibrary
             var loadButton = new ToolStripButton("Завантажити");
             loadButton.Click += (s, e) => LoadLibrary();
             
+            var exitButton = new ToolStripButton("Вихід");
+            exitButton.Click += (s, e) => Application.Exit();
+            
             toolStrip.Items.AddRange(new ToolStripItem[] { 
                 saveButton, 
-                loadButton
+                loadButton,
+                exitButton
             });
             
             this.Controls.Add(toolStrip);

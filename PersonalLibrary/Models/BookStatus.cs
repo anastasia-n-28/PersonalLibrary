@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 
 namespace PersonalLibrary.Models
 {
-    public class BookStatus
+    public enum BookStatus
     {
-        public bool IsAvailable { get; set; }
-        public string Condition { get; set; }
-        public void SetAvailability(bool status) => IsAvailable = status;
+        Available, // Наявна
+        Missing,   // Відсутня
+        Reserved,  // Зарезервована
+        Lost,      // Втрачена
+        Reading,   // Читається
+        Finished   // Прочитана
     }
-
 }

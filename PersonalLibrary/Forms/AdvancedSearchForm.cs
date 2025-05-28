@@ -85,8 +85,8 @@ namespace PersonalLibrary.Forms
             mainPanel.Controls.Add(new Label { Text = "Статус:", Height = 40 }, 0, 5);
             cmbStatus = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, Height = 40 };
             cmbStatus.Items.Add("Будь-який");
-            cmbStatus.Items.Add("Наявна");
-            cmbStatus.Items.Add("Відсутня");
+            foreach (var status in Enum.GetValues(typeof(BookStatus)))
+                cmbStatus.Items.Add(status);
             cmbStatus.SelectedIndex = 0;
             mainPanel.Controls.Add(cmbStatus, 1, 5);
 
@@ -193,10 +193,8 @@ namespace PersonalLibrary.Forms
                 // Фільтруємо за статусом
                 if (cmbStatus.SelectedIndex > 0)
                 {
-                    var status = cmbStatus.SelectedItem.ToString();
-                    results = results.Where(b => b.Status != null && 
-                        ((status == "Наявна" && b.Status.IsAvailable) || 
-                         (status == "Відсутня" && !b.Status.IsAvailable))).ToList();
+                    var status = (BookStatus)cmbStatus.SelectedItem;
+                    results = results.Where(b => b.Status == status).ToList();
                 }
 
                 // Фільтруємо за оцінкою

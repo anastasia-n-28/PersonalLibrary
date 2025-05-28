@@ -8,6 +8,7 @@
         private System.Windows.Forms.TextBox txtAuthor;
         private System.Windows.Forms.TextBox txtPublisher;
         private System.Windows.Forms.Button btnSearch;
+        private System.Windows.Forms.Button btnDeepSearch;
         private System.Windows.Forms.DataGridView dgvBooks;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton toolStripButtonAdd;
@@ -31,6 +32,7 @@
             this.txtAuthor = new System.Windows.Forms.TextBox();
             this.txtPublisher = new System.Windows.Forms.TextBox();
             this.btnSearch = new System.Windows.Forms.Button();
+            this.btnDeepSearch = new System.Windows.Forms.Button();
             this.dgvBooks = new System.Windows.Forms.DataGridView();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButtonAdd = new System.Windows.Forms.ToolStripButton();
@@ -61,9 +63,16 @@
             // btnSearch
             this.btnSearch.Location = new System.Drawing.Point(30, 220);
             this.btnSearch.Name = "btnSearch";
-            this.btnSearch.Size = new System.Drawing.Size(200, 100);
-            this.btnSearch.Text = "Розширений пошук";
+            this.btnSearch.Size = new System.Drawing.Size(200, 50);
+            this.btnSearch.Text = "Пошук";
             this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
+
+            // btnDeepSearch
+            this.btnDeepSearch.Location = new System.Drawing.Point(30, 270);
+            this.btnDeepSearch.Name = "btnDeepSearch";
+            this.btnDeepSearch.Size = new System.Drawing.Size(200, 100);
+            this.btnDeepSearch.Text = "Розширений пошук";
+            this.btnDeepSearch.Click += new System.EventHandler(this.btnDeepSearch_Click);
 
             // dgvBooks
             this.dgvBooks.Location = new System.Drawing.Point(270, 100);
@@ -118,6 +127,7 @@
             this.Controls.Add(this.txtAuthor);
             this.Controls.Add(this.txtPublisher);
             this.Controls.Add(this.btnSearch);
+            this.Controls.Add(this.btnDeepSearch);
             this.Controls.Add(this.dgvBooks);
             this.Name = "Form1";
             this.Text = "Бібліотека";

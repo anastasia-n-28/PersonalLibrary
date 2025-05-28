@@ -11,6 +11,7 @@ namespace PersonalLibrary.Forms
         private System.Windows.Forms.TextBox txtOrigin;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.ComboBox cmbStatus;
 
         private void InitializeComponent()
         {
@@ -22,6 +23,7 @@ namespace PersonalLibrary.Forms
             this.txtOrigin = new System.Windows.Forms.TextBox();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.cmbStatus = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // txtTitle
@@ -74,29 +76,37 @@ namespace PersonalLibrary.Forms
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(20, 260);
+            this.btnOK.Location = new System.Drawing.Point(20, 300);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(90, 30);
-            this.btnOK.TabIndex = 6;
+            this.btnOK.TabIndex = 7;
             this.btnOK.Text = "OK";
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(130, 260);
+            this.btnCancel.Location = new System.Drawing.Point(130, 300);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(90, 30);
-            this.btnCancel.TabIndex = 7;
+            this.btnCancel.TabIndex = 8;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            // 
+            // cmbStatus
+            // 
+            this.cmbStatus.Location = new System.Drawing.Point(20, 260);
+            this.cmbStatus.Name = "cmbStatus";
+            this.cmbStatus.Size = new System.Drawing.Size(200, 23);
+            this.cmbStatus.TabIndex = 6;
+            this.cmbStatus.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             // 
             // AddBookForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(250, 320);
+            this.ClientSize = new System.Drawing.Size(250, 360);
             this.Controls.Add(this.txtTitle);
             this.Controls.Add(this.txtAuthors);
             this.Controls.Add(this.txtPublisher);
@@ -105,6 +115,7 @@ namespace PersonalLibrary.Forms
             this.Controls.Add(this.txtOrigin);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.btnCancel);
+            this.Controls.Add(this.cmbStatus);
             this.Name = "AddBookForm";
             this.Text = "Add Book";
             this.ResumeLayout(false);

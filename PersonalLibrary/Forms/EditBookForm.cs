@@ -18,6 +18,8 @@ namespace PersonalLibrary.Forms
             txtYear.Text = book.Year.ToString();
             txtISBN.Text = book.ISBN;
             txtOrigin.Text = book.Origin;
+            cmbStatus.DataSource = Enum.GetValues(typeof(BookStatus));
+            cmbStatus.SelectedItem = book.Status;
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -43,6 +45,7 @@ namespace PersonalLibrary.Forms
             _book.Year = year;
             _book.ISBN = txtISBN.Text;
             _book.Origin = txtOrigin.Text;
+            _book.Status = (BookStatus)cmbStatus.SelectedItem;
             DialogResult = DialogResult.OK;
         }
 

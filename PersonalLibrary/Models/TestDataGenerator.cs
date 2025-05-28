@@ -25,7 +25,7 @@ namespace PersonalLibrary.Models
                 Year = 1937,
                 ISBN = "978-0-261-10221-7",
                 Origin = "UK",
-                Status = new BookStatus { IsAvailable = true, Condition = "New" },
+                Status = BookStatus.Available,
                 Rating = new UserRating { Score = 5, Review = "Masterpiece" }
             },
             new Book
@@ -36,7 +36,7 @@ namespace PersonalLibrary.Models
                 Year = 1949,
                 ISBN = "978-0-452-28423-4",
                 Origin = "UK",
-                Status = new BookStatus { IsAvailable = false, Condition = "Used" },
+                Status = BookStatus.Missing,
                 Rating = new UserRating { Score = 4, Review = "Thought-provoking" }
             },
             new Book
@@ -47,7 +47,7 @@ namespace PersonalLibrary.Models
                 Year = 1932,
                 ISBN = "978-0-099-51324-4",
                 Origin = "UK",
-                Status = new BookStatus { IsAvailable = true, Condition = "Good" },
+                Status = BookStatus.Available,
                 Rating = new UserRating { Score = 4, Review = "Disturbingly relevant" }
             }
         });
@@ -63,7 +63,7 @@ namespace PersonalLibrary.Models
                 Year = 1988,
                 ISBN = "978-0-553-10953-5",
                 Origin = "UK",
-                Status = new BookStatus { IsAvailable = true, Condition = "New" },
+                Status = BookStatus.Available,
                 Rating = new UserRating { Score = 5, Review = "Fascinating read" }
             },
             new Book
@@ -74,7 +74,7 @@ namespace PersonalLibrary.Models
                 Year = 1976,
                 ISBN = "978-0-19-929115-1",
                 Origin = "UK",
-                Status = new BookStatus { IsAvailable = false, Condition = "Worn" },
+                Status = BookStatus.Missing,
                 Rating = new UserRating { Score = 4, Review = "Groundbreaking ideas" }
             }
         });
@@ -90,7 +90,7 @@ namespace PersonalLibrary.Models
                 Year = 1840,
                 ISBN = "978-966-500-123-4",
                 Origin = "Ukraine",
-                Status = new BookStatus { IsAvailable = true, Condition = "New" },
+                Status = BookStatus.Available,
                 Rating = new UserRating { Score = 5, Review = "Класика української літератури" }
             },
             new Book
@@ -101,7 +101,7 @@ namespace PersonalLibrary.Models
                 Year = 1967,
                 ISBN = "978-5-389-07437-0",
                 Origin = "Russia",
-                Status = new BookStatus { IsAvailable = true, Condition = "Excellent" },
+                Status = BookStatus.Available,
                 Rating = new UserRating { Score = 5, Review = "Містична та глибока історія" }
             }
         });

@@ -32,7 +32,7 @@ namespace PersonalLibrary.Models
             if (string.IsNullOrWhiteSpace(ISBN)) error += "ISBN is required.\n";
             return error;
         }
-        public string StatusText => Status != null ? (Status.IsAvailable ? "Наявна" : "Відсутня") + ", " + Status.Condition : "";
+        public string StatusText => Status.ToString();
         public string RatingText => Rating != null ? new string('★', Rating.Score) + new string('☆', 5 - Rating.Score) : "";
     }
 
