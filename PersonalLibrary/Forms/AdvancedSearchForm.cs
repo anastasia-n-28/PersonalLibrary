@@ -95,7 +95,7 @@ namespace PersonalLibrary.Forms
             cmbRating = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, Height = 40 };
             cmbRating.Items.Add("Будь-який");
             for (int i = 1; i <= 5; i++)
-                cmbRating.Items.Add(new string('★', i));
+                cmbRating.Items.Add(i);
             cmbRating.SelectedIndex = 0;
             mainPanel.Controls.Add(cmbRating, 1, 6);
 
@@ -133,8 +133,21 @@ namespace PersonalLibrary.Forms
                 AllowUserToDeleteRows = false,
                 ReadOnly = true,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                MultiSelect = false
+                MultiSelect = false,
+                AutoGenerateColumns = false
             };
+
+            // Додаємо колонки вручну для відображення BookView
+            dgvResults.Columns.Add(new DataGridViewTextBoxColumn { Name = "Section", HeaderText = "Розділ", DataPropertyName = "Section" });
+            dgvResults.Columns.Add(new DataGridViewTextBoxColumn { Name = "Title", DataPropertyName = "Title", HeaderText = "Назва" });
+            dgvResults.Columns.Add(new DataGridViewTextBoxColumn { Name = "Authors", DataPropertyName = "Authors", HeaderText = "Автори" });
+            dgvResults.Columns.Add(new DataGridViewTextBoxColumn { Name = "Publisher", DataPropertyName = "Publisher", HeaderText = "Видавництво" });
+            dgvResults.Columns.Add(new DataGridViewTextBoxColumn { Name = "Year", DataPropertyName = "Year", HeaderText = "Рік" });
+            dgvResults.Columns.Add(new DataGridViewTextBoxColumn { Name = "ISBN", DataPropertyName = "ISBN", HeaderText = "ISBN" });
+            dgvResults.Columns.Add(new DataGridViewTextBoxColumn { Name = "Origin", DataPropertyName = "Origin", HeaderText = "Походження" });
+            dgvResults.Columns.Add(new DataGridViewTextBoxColumn { Name = "Status", DataPropertyName = "Status", HeaderText = "Статус" });
+            dgvResults.Columns.Add(new DataGridViewTextBoxColumn { Name = "Rating", HeaderText = "Оцінка", DataPropertyName = "Rating" });
+            dgvResults.Columns.Add(new DataGridViewTextBoxColumn { Name = "Review", HeaderText = "Відгук", DataPropertyName = "Review" });
 
             var resultsPanel = new Panel { Dock = DockStyle.Fill };
             resultsPanel.Controls.Add(dgvResults);
@@ -200,14 +213,29 @@ namespace PersonalLibrary.Forms
                 // Фільтруємо за оцінкою
                 if (cmbRating.SelectedIndex > 0)
                 {
-                    var rating = cmbRating.SelectedIndex;
+                    var rating = (int)cmbRating.SelectedItem;
                     results = results.Where(b => b.Rating != null && b.Rating.Score == rating).ToList();
                 }
 
                 // Оновлюємо результати
                 SearchResults = results;
+                var bookViews = SearchResults.Select(book => new BookView
+                {
+                    Section = _library.Sections.FirstOrDefault(s => s.Books.Contains(book))?.Name ?? "",
+                    Title = book.Title,
+                    Authors = book.Authors,
+                    Publisher = book.Publisher,
+                    Year = book.Year,
+                    ISBN = book.ISBN,
+                    Origin = book.Origin,
+                    Status = book.Status,
+                    Rating = book.Rating?.Score ?? 0,
+                    Review = book.Rating?.Review ?? "",
+                    BookRef = book
+                }).ToList();
+
                 dgvResults.DataSource = null;
-                dgvResults.DataSource = SearchResults;
+                dgvResults.DataSource = bookViews;
 
                 // Встановлюємо DialogResult.OK, щоб форма повернула результати
                 this.DialogResult = DialogResult.OK;
@@ -216,6 +244,22 @@ namespace PersonalLibrary.Forms
             {
                 MessageBox.Show($"Помилка при пошуку: {ex.Message}", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        // Додаємо клас BookView для відображення у DataGridView
+        public class BookView
+        {
+            public string Section { get; set; }
+            public string Title { get; set; }
+            public string Authors { get; set; }
+            public string Publisher { get; set; }
+            public int Year { get; set; }
+            public string ISBN { get; set; }
+            public string Origin { get; set; }
+            public BookStatus Status { get; set; }
+            public int Rating { get; set; }
+            public string Review { get; set; }
+            public Book BookRef { get; set; }
         }
     }
 } 

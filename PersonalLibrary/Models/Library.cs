@@ -36,17 +36,16 @@ namespace PersonalLibrary.Models
 
         public void SerializeData(string path)
         {
-            string json = JsonSerializer.Serialize(Sections, new JsonSerializerOptions { WriteIndented = true });
+            string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(path, json);
         }
 
-        public void DeserializeData(string path)
+        public static Library DeserializeData(string path)
         {
-            if (!File.Exists(path)) return;
+            if (!File.Exists(path)) return null;
             string json = File.ReadAllText(path);
-            var sections = JsonSerializer.Deserialize<List<LibrarySection>>(json);
-            if (sections != null)
-                Sections = sections;
+            var library = JsonSerializer.Deserialize<Library>(json);
+            return library;
         }
 
         public void AddBook(string sectionName, Book book)
