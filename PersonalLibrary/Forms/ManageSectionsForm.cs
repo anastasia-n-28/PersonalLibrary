@@ -7,12 +7,12 @@ namespace PersonalLibrary.Forms
 {
     public partial class ManageSectionsForm : Form
     {
-        private Library _library;
-        private ListBox lstSections;
-        private Button btnAdd;
-        private Button btnEdit;
-        private Button btnDelete;
-        private Button btnClose;
+        private readonly Library _library;
+        private ListBox? lstSections;
+        private Button? btnAdd;
+        private Button? btnEdit;
+        private Button? btnDelete;
+        private Button? btnClose;
 
         public ManageSectionsForm(Library library)
         {
@@ -74,7 +74,7 @@ namespace PersonalLibrary.Forms
             };
             btnAdd.Click += BtnAdd_Click;
 
-            buttonPanel.Controls.AddRange(new Control[] { btnClose, btnDelete, btnEdit, btnAdd });
+            buttonPanel.Controls.AddRange([btnClose, btnDelete, btnEdit, btnAdd]);
 
             this.Controls.Add(lstSections);
             this.Controls.Add(buttonPanel);
@@ -82,6 +82,9 @@ namespace PersonalLibrary.Forms
 
         private void LoadSections()
         {
+            if (lstSections == null)
+                throw new InvalidOperationException("lstSections is not initialized.");
+
             lstSections.Items.Clear();
             foreach (var section in _library.Sections)
             {
@@ -89,46 +92,46 @@ namespace PersonalLibrary.Forms
             }
         }
 
-        private void BtnAdd_Click(object sender, EventArgs e)
+        private void BtnAdd_Click(object? sender, EventArgs e)
         {
-            using (var inputForm = new InputDialog("Нова секція", "Введіть назву секції:"))
+            using var inputForm = new InputDialog("Нова секція", "Введіть назву секції:");
+            if (inputForm.ShowDialog() == DialogResult.OK)
             {
-                if (inputForm.ShowDialog() == DialogResult.OK)
+                var sectionName = inputForm.InputText;
+                if (!string.IsNullOrWhiteSpace(sectionName))
                 {
-                    var sectionName = inputForm.InputText;
-                    if (!string.IsNullOrWhiteSpace(sectionName))
-                    {
-                        _library.AddSection(sectionName);
-                        LoadSections();
-                    }
+                    _library.AddSection(sectionName);
+                    LoadSections();
                 }
             }
         }
 
-        private void BtnEdit_Click(object sender, EventArgs e)
+        private void BtnEdit_Click(object? sender, EventArgs e)
         {
-            if (lstSections.SelectedIndex == -1) return;
+            if (lstSections == null || lstSections.SelectedIndex == -1) return;
 
-            var oldName = lstSections.SelectedItem.ToString();
-            using (var inputForm = new InputDialog("Редагування секції", "Введіть нову назву секції:", oldName))
+            var oldName = lstSections.SelectedItem?.ToString();
+            if (oldName == null) return;
+
+            using var inputForm = new InputDialog("Редагування секції", "Введіть нову назву секції:", oldName);
+            if (inputForm.ShowDialog() == DialogResult.OK)
             {
-                if (inputForm.ShowDialog() == DialogResult.OK)
+                var newName = inputForm.InputText;
+                if (!string.IsNullOrWhiteSpace(newName))
                 {
-                    var newName = inputForm.InputText;
-                    if (!string.IsNullOrWhiteSpace(newName))
-                    {
-                        _library.RenameSection(oldName, newName);
-                        LoadSections();
-                    }
+                    _library.RenameSection(oldName, newName);
+                    LoadSections();
                 }
             }
         }
 
-        private void BtnDelete_Click(object sender, EventArgs e)
+        private void BtnDelete_Click(object? sender, EventArgs e)
         {
-            if (lstSections.SelectedIndex == -1) return;
+            if (lstSections == null || lstSections.SelectedIndex == -1) return;
 
-            var sectionName = lstSections.SelectedItem.ToString();
+            var sectionName = lstSections.SelectedItem?.ToString();
+            if (sectionName == null) return;
+
             var result = MessageBox.Show(
                 $"Ви впевнені, що хочете видалити розділ '{sectionName}'?\nВсі книги в цьому розділі будуть видалені.",
                 "Підтвердження видалення",
@@ -145,10 +148,10 @@ namespace PersonalLibrary.Forms
 
     public class InputDialog : Form
     {
-        public string InputText { get; private set; }
-        private TextBox txtInput;
-        private Button btnOK;
-        private Button btnCancel;
+        public string InputText { get; private set; } = string.Empty;
+        private readonly TextBox txtInput;
+        private readonly Button btnOK;
+        private readonly Button btnCancel;
 
         public InputDialog(string title, string prompt, string defaultValue = "")
         {
@@ -200,9 +203,9 @@ namespace PersonalLibrary.Forms
                 InputText = txtInput.Text;
             };
 
-            buttonPanel.Controls.AddRange(new Control[] { btnCancel, btnOK });
+            buttonPanel.Controls.AddRange([btnCancel, btnOK]);
 
-            this.Controls.AddRange(new Control[] { label, txtInput, buttonPanel });
+            this.Controls.AddRange([label, txtInput, buttonPanel]);
             this.AcceptButton = btnOK;
             this.CancelButton = btnCancel;
         }

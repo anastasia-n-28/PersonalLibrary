@@ -10,17 +10,31 @@ namespace PersonalLibrary.Models
 {
     public class Library
     {
-        public List<LibrarySection> Sections { get; set; } = new();
+        public List<LibrarySection> Sections { get; set; } = [];
 
-        public List<Book> FindBooks(string title, string author, string publisher)
+        // Cache JsonSerializerOptions
+        private static readonly JsonSerializerOptions _jsonSerializerOptions = new() { WriteIndented = true };
+
+        public IEnumerable<Book> FindBooks(string? title, string? author, string? publisher)
         {
-            return Sections
-                .SelectMany(s => s.Books)
-                .Where(b =>
-                    b.Title.Contains(title, StringComparison.OrdinalIgnoreCase) &&
-                    b.Authors.Contains(author, StringComparison.OrdinalIgnoreCase) &&
-                    b.Publisher.Contains(publisher, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            var query = Sections.SelectMany(s => s.Books);
+
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                query = query.Where(book => book.Title?.Contains(title, StringComparison.OrdinalIgnoreCase) ?? false);
+            }
+
+            if (!string.IsNullOrWhiteSpace(author))
+            {
+                query = query.Where(book => book.Authors?.Contains(author, StringComparison.OrdinalIgnoreCase) ?? false);
+            }
+
+            if (!string.IsNullOrWhiteSpace(publisher))
+            {
+                query = query.Where(book => book.Publisher?.Contains(publisher, StringComparison.OrdinalIgnoreCase) ?? false);
+            }
+
+            return [.. query];
         }
 
         public void InventoryCheck()
@@ -36,30 +50,50 @@ namespace PersonalLibrary.Models
 
         public void SerializeData(string path)
         {
-            string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(path, json);
+            try
+            {
+                string json = JsonSerializer.Serialize(this, _jsonSerializerOptions);
+                File.WriteAllText(path, json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Serialization error: {ex.Message}");
+                throw;
+            }
         }
 
-        public static Library DeserializeData(string path)
+        public static Library? DeserializeData(string path)
         {
             if (!File.Exists(path)) return null;
-            string json = File.ReadAllText(path);
-            var library = JsonSerializer.Deserialize<Library>(json);
-            return library;
+
+            try
+            {
+                string json = File.ReadAllText(path);
+                var library = JsonSerializer.Deserialize<Library>(json, _jsonSerializerOptions);
+                return library;
+            }
+            catch (JsonException jEx)
+            {
+                Console.WriteLine($"JSON deserialization error: {jEx.Message}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Deserialization error: {ex.Message}");
+                return null;
+            }
         }
 
         public void AddBook(string sectionName, Book book)
         {
             var section = Sections.FirstOrDefault(s => s.Name == sectionName);
-            if (section != null)
-                section.Books.Add(book);
+            section?.Books.Add(book);
         }
 
         public void RemoveBook(string sectionName, Book book)
         {
             var section = Sections.FirstOrDefault(s => s.Name == sectionName);
-            if (section != null)
-                section.Books.Remove(book);
+            section?.Books.Remove(book);
         }
 
         public void AddSection(string sectionName)

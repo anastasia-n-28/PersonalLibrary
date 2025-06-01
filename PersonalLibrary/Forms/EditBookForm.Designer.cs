@@ -2,7 +2,6 @@ namespace PersonalLibrary.Forms
 {
     partial class EditBookForm
     {
-        private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.TextBox txtTitle;
         private System.Windows.Forms.TextBox txtAuthors;
         private System.Windows.Forms.TextBox txtPublisher;
@@ -94,7 +93,7 @@ namespace PersonalLibrary.Forms
             // 
             this.btnAddSection.Location = new System.Drawing.Point(230, 260);
             this.btnAddSection.Name = "btnAddSection";
-            this.btnAddSection.Size = new System.Drawing.Size(90, 23);
+            this.btnAddSection.Size = new System.Drawing.Size(120, 23);
             this.btnAddSection.TabIndex = 7;
             this.btnAddSection.Text = "Додати розділ";
             // 
@@ -131,7 +130,7 @@ namespace PersonalLibrary.Forms
             this.btnOK.TabIndex = 7;
             this.btnOK.Text = "OK";
             this.btnOK.UseVisualStyleBackColor = true;
-            this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
+            this.btnOK.Click += new System.EventHandler(this.BtnOK_Click);
             // 
             // btnCancel
             // 
@@ -141,7 +140,7 @@ namespace PersonalLibrary.Forms
             this.btnCancel.TabIndex = 8;
             this.btnCancel.Text = "Скасувати";
             this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
             // EditBookForm
             // 
@@ -162,7 +161,7 @@ namespace PersonalLibrary.Forms
             this.Controls.Add(this.numRating);
             this.Controls.Add(this.txtReview);
             this.Name = "EditBookForm";
-            this.Text = "Edit Book";
+            this.Text = "Редагувати книгу";
             this.ResumeLayout(false);
             this.PerformLayout();
         }

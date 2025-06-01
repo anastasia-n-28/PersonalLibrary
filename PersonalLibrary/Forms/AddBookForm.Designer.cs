@@ -2,7 +2,6 @@ namespace PersonalLibrary.Forms
 {
     partial class AddBookForm
     {
-        private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.TextBox txtTitle;
         private System.Windows.Forms.TextBox txtAuthors;
         private System.Windows.Forms.TextBox txtPublisher;
@@ -13,10 +12,16 @@ namespace PersonalLibrary.Forms
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.ComboBox cmbStatus;
         public System.Windows.Forms.ComboBox cmbSection;
-        private System.Windows.Forms.NumericUpDown numRating;
+        private System.Windows.Forms.ComboBox cmbRating;
         private System.Windows.Forms.TextBox txtReview;
         private System.Windows.Forms.Button btnAddSection;
 
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
         private void InitializeComponent()
         {
             this.txtTitle = new System.Windows.Forms.TextBox();
@@ -30,7 +35,7 @@ namespace PersonalLibrary.Forms
             this.cmbStatus = new System.Windows.Forms.ComboBox();
             this.cmbSection = new System.Windows.Forms.ComboBox();
             this.btnAddSection = new System.Windows.Forms.Button();
-            this.numRating = new System.Windows.Forms.NumericUpDown();
+            this.cmbRating = new System.Windows.Forms.ComboBox();
             this.txtReview = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
@@ -40,7 +45,7 @@ namespace PersonalLibrary.Forms
             this.txtTitle.Name = "txtTitle";
             this.txtTitle.Size = new System.Drawing.Size(200, 23);
             this.txtTitle.TabIndex = 0;
-            this.txtTitle.PlaceholderText = "Title";
+            this.txtTitle.PlaceholderText = "Назва";
             // 
             // txtAuthors
             // 
@@ -48,7 +53,7 @@ namespace PersonalLibrary.Forms
             this.txtAuthors.Name = "txtAuthors";
             this.txtAuthors.Size = new System.Drawing.Size(200, 23);
             this.txtAuthors.TabIndex = 1;
-            this.txtAuthors.PlaceholderText = "Authors";
+            this.txtAuthors.PlaceholderText = "Автор(и)";
             // 
             // txtPublisher
             // 
@@ -56,7 +61,7 @@ namespace PersonalLibrary.Forms
             this.txtPublisher.Name = "txtPublisher";
             this.txtPublisher.Size = new System.Drawing.Size(200, 23);
             this.txtPublisher.TabIndex = 2;
-            this.txtPublisher.PlaceholderText = "Publisher";
+            this.txtPublisher.PlaceholderText = "Видавництво";
             // 
             // txtYear
             // 
@@ -64,7 +69,7 @@ namespace PersonalLibrary.Forms
             this.txtYear.Name = "txtYear";
             this.txtYear.Size = new System.Drawing.Size(200, 23);
             this.txtYear.TabIndex = 3;
-            this.txtYear.PlaceholderText = "Year";
+            this.txtYear.PlaceholderText = "Рік";
             // 
             // txtISBN
             // 
@@ -80,7 +85,7 @@ namespace PersonalLibrary.Forms
             this.txtOrigin.Name = "txtOrigin";
             this.txtOrigin.Size = new System.Drawing.Size(200, 23);
             this.txtOrigin.TabIndex = 5;
-            this.txtOrigin.PlaceholderText = "Origin";
+            this.txtOrigin.PlaceholderText = "Походження";
             // 
             // cmbSection
             // 
@@ -106,14 +111,13 @@ namespace PersonalLibrary.Forms
             this.cmbStatus.TabIndex = 6;
             this.cmbStatus.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             // 
-            // numRating
+            // cmbRating
             // 
-            this.numRating.Location = new System.Drawing.Point(20, 340);
-            this.numRating.Name = "numRating";
-            this.numRating.Size = new System.Drawing.Size(200, 23);
-            this.numRating.TabIndex = 8;
-            this.numRating.Minimum = 1;
-            this.numRating.Maximum = 5;
+            this.cmbRating.Location = new System.Drawing.Point(20, 340);
+            this.cmbRating.Name = "cmbRating";
+            this.cmbRating.Size = new System.Drawing.Size(200, 23);
+            this.cmbRating.TabIndex = 8;
+            this.cmbRating.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             // 
             // txtReview
             // 
@@ -131,7 +135,7 @@ namespace PersonalLibrary.Forms
             this.btnOK.TabIndex = 7;
             this.btnOK.Text = "OK";
             this.btnOK.UseVisualStyleBackColor = true;
-            this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
+            this.btnOK.Click += new System.EventHandler(this.BtnOK_Click);
             // 
             // btnCancel
             // 
@@ -141,7 +145,7 @@ namespace PersonalLibrary.Forms
             this.btnCancel.TabIndex = 8;
             this.btnCancel.Text = "Скасувати";
             this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
             // AddBookForm
             // 
@@ -159,12 +163,14 @@ namespace PersonalLibrary.Forms
             this.Controls.Add(this.cmbStatus);
             this.Controls.Add(this.cmbSection);
             this.Controls.Add(this.btnAddSection);
-            this.Controls.Add(this.numRating);
+            this.Controls.Add(this.cmbRating);
             this.Controls.Add(this.txtReview);
             this.Name = "AddBookForm";
-            this.Text = "Add Book";
+            this.Text = "Додати книгу";
             this.ResumeLayout(false);
             this.PerformLayout();
         }
+
+        #endregion
     }
 } 

@@ -9,7 +9,8 @@ namespace PersonalLibrary.Models
     public class UserRating
     {
         public int Score { get; set; }
-        public string Review { get; set; }
+        public string Review { get; set; } = string.Empty;
+
         public void SetRating(int score, string review)
         {
             Score = score;

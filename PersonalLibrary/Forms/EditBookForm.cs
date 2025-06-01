@@ -7,59 +7,79 @@ namespace PersonalLibrary.Forms
 {
     public partial class EditBookForm : Form
     {
-        private Book _book;
-        private Library _library;
+        private readonly Book _book;
+        private readonly Library _library;
 
         public EditBookForm(Book book, Library library)
         {
+            _book = book ?? throw new ArgumentNullException(nameof(book));
+            _library = library ?? throw new ArgumentNullException(nameof(library));
+
             InitializeComponent();
-            _book = book;
-            _library = library;
-            txtTitle.Text = book.Title;
-            txtAuthors.Text = book.Authors;
-            txtPublisher.Text = book.Publisher;
-            txtYear.Text = book.Year.ToString();
-            txtISBN.Text = book.ISBN;
-            txtOrigin.Text = book.Origin;
-            cmbStatus.DataSource = Enum.GetValues(typeof(BookStatus));
-            cmbStatus.SelectedItem = book.Status;
-            cmbSection.Items.AddRange(_library.Sections.Select(s => s.Name).ToArray());
-            int sectionIndex = _library.Sections.FindIndex(s => s.Books.Contains(book));
-            cmbSection.SelectedIndex = sectionIndex >= 0 ? sectionIndex : 0;
-            numRating.Minimum = 1;
-            numRating.Maximum = 5;
-            numRating.Value = book.Rating?.Score ?? 5;
-            txtReview.Text = book.Rating?.Review ?? "";
-            btnAddSection.Click += BtnAddSection_Click;
+            LoadBookData();
         }
 
-        private void BtnAddSection_Click(object sender, EventArgs e)
+        private void LoadBookData()
         {
-            using (var form = new ManageSectionsForm(_library))
+            txtTitle!.Text = _book.Title ?? "";
+            txtAuthors!.Text = _book.Authors ?? "";
+            txtPublisher!.Text = _book.Publisher ?? "";
+            txtYear!.Text = _book.Year.ToString();
+            txtISBN!.Text = _book.ISBN ?? "";
+            txtOrigin!.Text = _book.Origin ?? "";
+
+            cmbStatus!.DataSource = Enum.GetValues(typeof(BookStatus));
+            cmbStatus.SelectedItem = _book.Status;
+
+            cmbSection!.Items.AddRange([.. _library.Sections.Select(s => s.Name)]);
+            var currentSection = _library.Sections.FirstOrDefault(s => s.Books.Contains(_book));
+            if (currentSection != null)
             {
-                form.ShowDialog();
-                cmbSection.Items.Clear();
-                cmbSection.Items.AddRange(_library.Sections.Select(s => s.Name).ToArray());
-                if (cmbSection.Items.Count > 0) cmbSection.SelectedIndex = 0;
+                cmbSection.SelectedItem = currentSection.Name;
             }
+            if (cmbSection.Items.Count > 0 && cmbSection.SelectedItem == null) cmbSection.SelectedIndex = 0;
+
+            if (_book.Rating != null)
+            {
+                numRating!.Value = _book.Rating.Score;
+                txtReview!.Text = _book.Rating.Review ?? "";
+            }
+            else
+            {
+                numRating!.Value = numRating!.Minimum;
+                txtReview!.Text = "";
+            }
+
+            btnOK!.Click += BtnOK_Click;
+            btnCancel!.Click += BtnCancel_Click;
+            btnAddSection!.Click += BtnAddSection_Click;
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
+        private void BtnAddSection_Click(object? sender, EventArgs e)
+        {
+            using var form = new ManageSectionsForm(_library);
+            form.ShowDialog();
+            cmbSection!.Items.Clear();
+            cmbSection.Items.AddRange([.. _library.Sections.Select(s => s.Name)]);
+            if (cmbSection.Items.Count > 0) cmbSection.SelectedIndex = 0;
+        }
+
+        private void BtnOK_Click(object? sender, EventArgs e)
         {
             string error = "";
-            if (string.IsNullOrWhiteSpace(txtTitle.Text)) error += "Title is required.\n";
-            if (string.IsNullOrWhiteSpace(txtAuthors.Text)) error += "Authors are required.\n";
-            if (string.IsNullOrWhiteSpace(txtPublisher.Text)) error += "Publisher is required.\n";
-            if (string.IsNullOrWhiteSpace(txtISBN.Text)) error += "ISBN is required.\n";
-            if (string.IsNullOrWhiteSpace(txtOrigin.Text)) error += "Origin is required.\n";
-            if (!int.TryParse(txtYear.Text, out int year) || year <= 0) error += "Year must be a positive number.\n";
-            if (cmbSection.SelectedIndex < 0)
+            if (string.IsNullOrWhiteSpace(txtTitle?.Text)) error += "Назва обов'язкова.\n";
+            if (string.IsNullOrWhiteSpace(txtAuthors?.Text)) error += "Автор(и) обов'язкові.\n";
+            if (string.IsNullOrWhiteSpace(txtPublisher?.Text)) error += "Видавництво обов'язкове.\n";
+            if (string.IsNullOrWhiteSpace(txtISBN?.Text)) error += "ISBN обов'язкове.\n";
+            if (string.IsNullOrWhiteSpace(txtOrigin?.Text)) error += "Походження обов'язкове.\n";
+            if (!int.TryParse(txtYear?.Text, out int year) || year <= 0) error += "Рік - позитивне число\n";
+            if (cmbSection?.SelectedIndex < 0)
             {
                 MessageBox.Show("Оберіть розділ!", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 DialogResult = DialogResult.Cancel;
                 return;
             }
-            if (numRating.Value < 1 || numRating.Value > 5)
+            if (numRating?.Value < 1 || numRating?.Value > 5)
             {
                 MessageBox.Show("Оцінка має бути від 1 до 5!", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 DialogResult = DialogResult.Cancel;
@@ -73,18 +93,30 @@ namespace PersonalLibrary.Forms
                 return;
             }
 
-            _book.Title = txtTitle.Text;
-            _book.Authors = txtAuthors.Text;
-            _book.Publisher = txtPublisher.Text;
+            BookStatus selectedStatus = cmbStatus?.SelectedItem is BookStatus status ? status : BookStatus.Available;
+            int ratingScore = (int)(numRating?.Value ?? 0);
+
+            _book.Title = txtTitle?.Text;
+            _book.Authors = txtAuthors?.Text;
+            _book.Publisher = txtPublisher?.Text;
             _book.Year = year;
-            _book.ISBN = txtISBN.Text;
-            _book.Origin = txtOrigin.Text;
-            _book.Status = (BookStatus)cmbStatus.SelectedItem;
-            _book.Rating = new UserRating { Score = (int)numRating.Value, Review = txtReview.Text };
+            _book.ISBN = txtISBN?.Text;
+            _book.Origin = txtOrigin?.Text;
+            _book.Status = selectedStatus;
+            if (_book.Rating == null)
+            {
+                _book.Rating = new UserRating { Score = ratingScore, Review = txtReview?.Text ?? "" };
+            }
+            else
+            {
+                _book.Rating.Score = ratingScore;
+                _book.Rating.Review = txtReview?.Text ?? "";
+            }
+
             DialogResult = DialogResult.OK;
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
+        private void BtnCancel_Click(object? sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
         }

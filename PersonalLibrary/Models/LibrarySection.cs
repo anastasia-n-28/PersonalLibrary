@@ -8,8 +8,8 @@ namespace PersonalLibrary.Models
 {
     public class LibrarySection
     {
-        public string Name { get; set; }
-        public List<Book> Books { get; set; } = new();
+        public string Name { get; set; } = "";
+        public List<Book> Books { get; set; } = [];
 
         public List<Book> GetBooks() => Books;
 

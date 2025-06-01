@@ -77,14 +77,14 @@
             this.btnSearch.Name = "btnSearch";
             this.btnSearch.Size = new System.Drawing.Size(200, 50);
             this.btnSearch.Text = "Пошук";
-            this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
+            this.btnSearch.Click += new System.EventHandler(this.BtnSearch_Click);
 
             // btnDeepSearch
             this.btnDeepSearch.Location = new System.Drawing.Point(30, 310);
             this.btnDeepSearch.Name = "btnDeepSearch";
             this.btnDeepSearch.Size = new System.Drawing.Size(200, 100);
             this.btnDeepSearch.Text = "Розширений пошук";
-            this.btnDeepSearch.Click += new System.EventHandler(this.btnDeepSearch_Click);
+            this.btnDeepSearch.Click += new System.EventHandler(this.BtnDeepSearch_Click);
 
             // dgvBooks
             this.dgvBooks.Location = new System.Drawing.Point(270, 100);

@@ -18,8 +18,8 @@ namespace PersonalLibrary.Models
             var travel = new LibrarySection { Name = "Travel" };
 
             // Fiction
-            fiction.Books.AddRange(new[]
-            {
+            fiction.Books.AddRange(
+            [
                 new Book
                 {
                     Title = "The Hobbit",
@@ -119,11 +119,11 @@ namespace PersonalLibrary.Models
                     Status = BookStatus.Available,
                     Rating = new UserRating { Score = 4, Review = "Gripping and intense" }
                 }
-            });
+            ]);
 
             // Science
-            science.Books.AddRange(new[]
-            {
+            science.Books.AddRange(
+            [
                 new Book
                 {
                     Title = "A Brief History of Time",
@@ -179,11 +179,11 @@ namespace PersonalLibrary.Models
                     Status = BookStatus.Available,
                     Rating = new UserRating { Score = 5, Review = "Powerful and moving story" }
                 }
-            });
+            ]);
 
             // Classics
-            classics.Books.AddRange(new[]
-            {
+            classics.Books.AddRange(
+            [
                 new Book
                 {
                     Title = "Кобзар",
@@ -272,11 +272,11 @@ namespace PersonalLibrary.Models
                     Status = BookStatus.Available,
                     Rating = new UserRating { Score = 4, Review = "A satirical masterpiece" }
                 }
-            });
+            ]);
 
             // History
-            history.Books.AddRange(new[]
-            {
+            history.Books.AddRange(
+            [
                 new Book
                 {
                     Title = "A People's History of the United States",
@@ -299,11 +299,11 @@ namespace PersonalLibrary.Models
                     Status = BookStatus.Available,
                     Rating = new UserRating { Score = 4, Review = "Detailed account of WWI start" }
                 }
-            });
+            ]);
 
             // Technology
-            technology.Books.AddRange(new[]
-            {
+            technology.Books.AddRange(
+            [
                 new Book
                 {
                     Title = "Code: The Hidden Language of Computer Hardware and Software",
@@ -326,11 +326,11 @@ namespace PersonalLibrary.Models
                     Status = BookStatus.Reading,
                     Rating = new UserRating { Score = 5, Review = "Timeless advice for developers" }
                 }
-            });
+            ]);
 
             // Travel
-            travel.Books.AddRange(new[]
-            {
+            travel.Books.AddRange(
+            [
                 new Book
                 {
                     Title = "Into the Wild",
@@ -353,10 +353,10 @@ namespace PersonalLibrary.Models
                     Status = BookStatus.Available,
                     Rating = new UserRating { Score = 4, Review = "Funny and insightful" }
                 }
-            });
+            ]);
 
             var library = new Library();
-            library.Sections.AddRange(new[] { fiction, science, classics, history, technology, travel });
+            library.Sections.AddRange([fiction, science, classics, history, technology, travel]);
 
             return library;
         }

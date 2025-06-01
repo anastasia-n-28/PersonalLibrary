@@ -4,16 +4,19 @@ using Microsoft.VisualBasic;
 using System.Windows.Forms;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace PersonalLibrary
 {
     public partial class Form1 : Form
     {
-        private Library _library;
+        private Library? _library;
         private const string DataFile = "library.json";
-        private ContextMenuStrip dgvContextMenu;
-        private BindingSource booksBindingSource = new BindingSource();
-        
+        private readonly BindingSource booksBindingSource = [];
+        private bool _isLibraryModified = false;
+        private bool _isAdvancedSearchFormOpen = false;
+
         public Form1()
         {
             InitializeComponent();
@@ -21,227 +24,306 @@ namespace PersonalLibrary
             saveToolStripMenuItem.Click += (s, e) => { SyncBooksFromGrid(); SaveLibrary(); };
             loadToolStripMenuItem.Click += (s, e) => LoadLibrary();
             exitToolStripMenuItem.Click += (s, e) => Close();
-            addToolStripMenuItem.Click += btnAdd_Click;
-            editToolStripMenuItem.Click += btnEdit_Click;
-            deleteToolStripMenuItem.Click += btnDelete_Click;
-            manageSectionsToolStripMenuItem.Click += btnManageSections_Click;
-            helpToolStripMenuItem.Click += btnHelp_Click;
-            reportToolStripMenuItem.Click += btnReport_Click;
+            addToolStripMenuItem.Click += BtnAdd_Click;
+            editToolStripMenuItem.Click += BtnEdit_Click;
+            deleteToolStripMenuItem.Click += BtnDelete_Click;
+            manageSectionsToolStripMenuItem.Click += BtnManageSections_Click;
+            helpToolStripMenuItem.Click += BtnHelp_Click;
+            reportToolStripMenuItem.Click += BtnReport_Click;
             dgvBooks.ReadOnly = false;
-            dgvBooks.CellValidating += dgvBooks_CellValidating;
-            dgvBooks.CellEndEdit += dgvBooks_CellEndEdit;
+            dgvBooks.CellValidating += DgvBooks_CellValidating;
+            dgvBooks.CellEndEdit += DgvBooks_CellEndEdit;
+            btnSearch.Click += BtnSearch_Click;
+            btnDeepSearch.Click += BtnDeepSearch_Click;
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void Form1_Load(object? sender, EventArgs e)
         {
             if (File.Exists(DataFile))
             {
                 _library = Library.DeserializeData(DataFile);
-                if (_library == null)
-                    _library = TestDataGenerator.Generate();
+                _library ??= TestDataGenerator.Generate();
             }
             else
             {
                 _library = TestDataGenerator.Generate();
             }
-            UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
-            //InitializeDataGridViewContextMenu();
+            _isLibraryModified = false;
+
+            UpdateDataGridView(_library?.Sections.SelectMany(s => s.Books));
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        private void Form1_FormClosing(object? sender, FormClosingEventArgs e)
         {
-            var result = MessageBox.Show("Зберегти зміни перед виходом?", "Зберегти зміни", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-            if (result == DialogResult.Yes)
+            if (_isLibraryModified)
             {
-                SaveLibrary();
-            }
-            else if (result == DialogResult.Cancel)
-            {
-                e.Cancel = true;
+                var result = MessageBox.Show("Зберегти зміни перед виходом?", "Зберегти зміни", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                if (result == DialogResult.Yes)
+                {
+                    SaveLibrary();
+                }
+                else if (result == DialogResult.Cancel)
+                {
+                    e.Cancel = true;
+                }
             }
         }
 
-        private void btnSearch_Click(object sender, EventArgs e)
+        private void BtnSearch_Click(object? sender, EventArgs e)
         {
             var title = txtTitle.Text;
             var author = txtAuthor.Text;
             var publisher = txtPublisher.Text;
 
-            var results = _library.FindBooks(title, author, publisher);
+            var results = _library?.FindBooks(title, author, publisher);
             UpdateDataGridView(results);
+
+            if (results == null || !results.Any())
+            {
+                MessageBox.Show("Книг не знайдено", "Пошук", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                booksBindingSource.DataSource = new List<BookView>();
+            }
         }
 
-        private void btnDeepSearch_Click(object sender, EventArgs e)
+        private async void BtnDeepSearch_Click(object? sender, EventArgs e)
         {
-            using (var form = new AdvancedSearchForm(_library))
+            if (_isAdvancedSearchFormOpen) return;
+
+            if (_library != null)
             {
-                if (form.ShowDialog() == DialogResult.OK)
+                _isAdvancedSearchFormOpen = true;
+                using var form = new AdvancedSearchForm(_library);
+                DialogResult result = form.ShowDialog();
+
+                await Task.Delay(100);
+
+                _isAdvancedSearchFormOpen = false;
+
+                if (result == DialogResult.OK)
                 {
                     UpdateDataGridView(form.SearchResults);
                 }
             }
+            else
+            {
+                _isAdvancedSearchFormOpen = false;
+            }
         }
 
-        private void btnAdd_Click(object sender, EventArgs e)
+        private void BtnAdd_Click(object? sender, EventArgs e)
         {
-            using (var form = new AddBookForm(_library))
+            if (_library != null)
             {
+                using var form = new AddBookForm(_library);
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    var section = _library.Sections.FirstOrDefault(s => s.Name == form.cmbSection.SelectedItem.ToString());
-                    if (section != null)
+                    if (form.Book != null)
                     {
-                        section.AddBook(form.Book);
-                        UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
+                        var sectionName = form.cmbSection.SelectedItem?.ToString();
+                        if (sectionName != null)
+                        {
+                            var section = _library.Sections.FirstOrDefault(s => s.Name == sectionName);
+                            if (section != null)
+                            {
+                                section.AddBook(form.Book);
+                                UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
+                                SaveLibrary();
+                                _isLibraryModified = true;
+                            }
+                        }
                     }
                 }
             }
         }
 
-        private void btnEdit_Click(object sender, EventArgs e)
+        private void BtnEdit_Click(object? sender, EventArgs e)
         {
             if (dgvBooks.SelectedRows.Count == 0)
             {
                 MessageBox.Show("Оберіть книгу для редагування.", "Жодна книга не обрана", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            var selectedView = dgvBooks.SelectedRows[0].DataBoundItem as BookView;
-            if (selectedView == null) return;
-            var selectedBook = selectedView.BookRef;
-            using (var form = new EditBookForm(selectedBook, _library))
+            if (dgvBooks.SelectedRows[0].DataBoundItem is BookView selectedView)
             {
-                if (form.ShowDialog() == DialogResult.OK)
+                var selectedBook = selectedView.BookRef;
+                if (selectedBook != null && _library != null)
                 {
-                    UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
+                    using var form = new EditBookForm(selectedBook, _library);
+                    if (form.ShowDialog() == DialogResult.OK)
+                    {
+                        UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
+                        SaveLibrary();
+                        _isLibraryModified = true;
+                    }
                 }
             }
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
+        private void BtnDelete_Click(object? sender, EventArgs e)
         {
             if (dgvBooks.SelectedRows.Count == 0)
             {
                 MessageBox.Show("Оберіть книгу для видалення.", "Жодна книга не обрана", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            var selectedView = dgvBooks.SelectedRows[0].DataBoundItem as BookView;
-            if (selectedView == null) return;
-            var selectedBook = selectedView.BookRef;
-            var confirm = MessageBox.Show("Ви дійсно хочете видалити цю книгу?", "Підтвердження", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (confirm != DialogResult.Yes) return;
-            var section = _library.Sections.FirstOrDefault(s => s.Books.Any(b => b.ISBN == selectedBook.ISBN));
-            if (section != null)
+            if (dgvBooks.SelectedRows[0].DataBoundItem is BookView selectedView)
             {
-                var bookToRemove = section.Books.FirstOrDefault(b => b.ISBN == selectedBook.ISBN);
-                if (bookToRemove != null)
+                var selectedBook = selectedView.BookRef;
+                if (selectedBook != null && _library != null)
                 {
-                    section.Books.Remove(bookToRemove);
-                    UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
-                    SaveLibrary();
+                    var confirm = MessageBox.Show("Ви дійсно хочете видалити цю книгу?", "Підтвердження", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (confirm != DialogResult.Yes) return;
+
+                    if (selectedBook.ISBN != null)
+                    {
+                        var section = _library.Sections.FirstOrDefault(s => s.Books.Any(b => b.ISBN == selectedBook.ISBN));
+                        if (section != null)
+                        {
+                            var bookToRemove = section.Books.FirstOrDefault(b => b.ISBN == selectedBook.ISBN);
+                            if (bookToRemove != null)
+                            {
+                                section.Books.Remove(bookToRemove);
+                                UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
+                                SaveLibrary();
+                                _isLibraryModified = true;
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        private void btnManageSections_Click(object sender, EventArgs e)
+        private void BtnManageSections_Click(object? sender, EventArgs e)
         {
-            using (var form = new ManageSectionsForm(_library))
+            if (_library != null)
             {
+                using var form = new ManageSectionsForm(_library);
                 form.ShowDialog();
                 UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
+                _isLibraryModified = true;
             }
         }
         
-        private void btnHelp_Click(object sender, EventArgs e)
+        private void BtnHelp_Click(object? sender, EventArgs e)
         {
             string helpText = "Інструкція користувача:\n\n1. Додайте книги...\n2. Використовуйте пошук...\n...";
             MessageBox.Show(helpText, "Довідка", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void btnReport_Click(object sender, EventArgs e)
+        private void BtnReport_Click(object? sender, EventArgs e)
         {
-            var bookViews = booksBindingSource.DataSource as List<BookView>;
-            if (bookViews == null || bookViews.Count == 0)
+            if (booksBindingSource.DataSource is List<BookView> bookViews)
             {
-                MessageBox.Show("Немає даних для звіту!", "Звіт", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.Filter = "Text files (*.txt)|*.txt|CSV files (*.csv)|*.csv";
-            sfd.Title = "Зберегти звіт";
-            if (sfd.ShowDialog() == DialogResult.OK)
-            {
-                try
+                if (bookViews.Count == 0)
                 {
-                    using (var sw = new StreamWriter(sfd.FileName))
+                    MessageBox.Show("Немає даних для звіту!", "Звіт", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+                using var sfd = new SaveFileDialog();
+                sfd.Filter = "Text files (*.txt)|*.txt|CSV files (*.csv)|*.csv";
+                sfd.Title = "Зберегти звіт";
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    try
                     {
+                        using var sw = new StreamWriter(sfd.FileName);
                         sw.WriteLine("Назва;Автор(и);Видавництво;Рік;ISBN;Походження;Статус;Оцінка;Відгук;Розділ");
                         foreach (var bookView in bookViews)
                         {
-                            sw.WriteLine($"{bookView.Title};{bookView.Authors};{bookView.Publisher};{bookView.Year};{bookView.ISBN};{bookView.Origin};{bookView.Status};{bookView.Rating};{bookView.Review};{bookView.Section}");
+                            sw.WriteLine($"{bookView.Title?.Replace(";", ",") ?? ""};{bookView.Authors?.Replace(";", ",") ?? ""};{bookView.Publisher?.Replace(";", ",") ?? ""};{bookView.Year};{bookView.ISBN?.Replace(";", ",") ?? ""};{bookView.Origin?.Replace(";", ",") ?? ""};{bookView.Status};{bookView.Rating};{bookView.Review?.Replace(";", ",") ?? ""};{bookView.Section?.Replace(";", ",") ?? ""}");
                         }
+                        MessageBox.Show("Звіт збережено у файл:\n" + sfd.FileName, "Звіт", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
-                    MessageBox.Show("Звіт збережено у файл:\n" + sfd.FileName, "Звіт", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Помилка при збереженні звіту:\n{ex.Message}\nШлях до файлу: {sfd.FileName}", "Помилка збереження звіту", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Помилка при збереженні звіту:\n{ex.Message}\nШлях до файлу: {sfd.FileName}", "Помилка збереження звіту", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+            }
+            else
+            {
+                MessageBox.Show("Немає даних для звіту!", "Звіт", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
         public class BookView
         {
-            public string Section { get; set; }
-            public string Title { get; set; }
-            public string Authors { get; set; }
-            public string Publisher { get; set; }
+            public string? Section { get; set; }
+            public string? Title { get; set; }
+            public string? Authors { get; set; }
+            public string? Publisher { get; set; }
             public int Year { get; set; }
-            public string ISBN { get; set; }
-            public string Origin { get; set; }
+            public string? ISBN { get; set; }
+            public string? Origin { get; set; }
             public BookStatus Status { get; set; }
             public int Rating { get; set; }
-            public string Review { get; set; }
-            public Book BookRef { get; set; } // для редагування/видалення
+            public string? Review { get; set; }
+            public Book? BookRef { get; set; }
         }
 
-        private void UpdateDataGridView(IEnumerable<Book> books)
+        private void UpdateDataGridView(IEnumerable<Book>? books)
         {
+            if (books == null)
+            {
+                booksBindingSource.DataSource = new List<BookView>();
+                if (dgvBooks != null)
+                {
+                    dgvBooks.DataSource = booksBindingSource;
+                }
+                return;
+            }
+
             var bookViews = books.Select(book => new BookView
             {
-                Section = _library.Sections.FirstOrDefault(s => s.Books.Contains(book))?.Name ?? "",
-                Title = book.Title,
-                Authors = book.Authors,
-                Publisher = book.Publisher,
+                Section = _library?.Sections.FirstOrDefault(s => s.Books.Contains(book))?.Name ?? "",
+                Title = book.Title ?? "",
+                Authors = book.Authors ?? "",
+                Publisher = book.Publisher ?? "",
                 Year = book.Year,
-                ISBN = book.ISBN,
-                Origin = book.Origin,
+                ISBN = book.ISBN ?? "",
+                Origin = book.Origin ?? "",
                 Status = book.Status,
                 Rating = book.Rating?.Score ?? 0,
                 Review = book.Rating?.Review ?? "",
                 BookRef = book
             }).ToList();
             booksBindingSource.DataSource = bookViews;
-            dgvBooks.DataSource = booksBindingSource;
-            dgvBooks.Columns.Clear();
-            dgvBooks.AutoGenerateColumns = false;
-            dgvBooks.Columns.Add(new DataGridViewTextBoxColumn { Name = "Section", HeaderText = "Розділ", DataPropertyName = "Section" });
-            dgvBooks.Columns.Add(new DataGridViewTextBoxColumn { Name = "Title", DataPropertyName = "Title", HeaderText = "Назва" });
-            dgvBooks.Columns.Add(new DataGridViewTextBoxColumn { Name = "Authors", DataPropertyName = "Authors", HeaderText = "Автори" });
-            dgvBooks.Columns.Add(new DataGridViewTextBoxColumn { Name = "Publisher", DataPropertyName = "Publisher", HeaderText = "Видавництво" });
-            dgvBooks.Columns.Add(new DataGridViewTextBoxColumn { Name = "Year", DataPropertyName = "Year", HeaderText = "Рік" });
-            dgvBooks.Columns.Add(new DataGridViewTextBoxColumn { Name = "ISBN", DataPropertyName = "ISBN", HeaderText = "ISBN" });
-            dgvBooks.Columns.Add(new DataGridViewTextBoxColumn { Name = "Origin", DataPropertyName = "Origin", HeaderText = "Походження" });
-            dgvBooks.Columns.Add(new DataGridViewComboBoxColumn { Name = "Status", DataPropertyName = "Status", HeaderText = "Статус", DataSource = Enum.GetValues(typeof(BookStatus)) });
-            dgvBooks.Columns.Add(new DataGridViewTextBoxColumn { Name = "Rating", HeaderText = "Оцінка", DataPropertyName = "Rating" });
-            dgvBooks.Columns.Add(new DataGridViewTextBoxColumn { Name = "Review", HeaderText = "Відгук", DataPropertyName = "Review" });
+            
+            if (dgvBooks != null)
+            {
+                dgvBooks.DataSource = booksBindingSource;
+                dgvBooks.Columns.Clear();
+                dgvBooks.AutoGenerateColumns = false;
+                dgvBooks.Columns.AddRange(
+                    [
+                        new DataGridViewTextBoxColumn { Name = "Section", HeaderText = "Розділ", DataPropertyName = "Section" },
+                        new DataGridViewTextBoxColumn { Name = "Title", DataPropertyName = "Title", HeaderText = "Назва" },
+                        new DataGridViewTextBoxColumn { Name = "Authors", DataPropertyName = "Authors", HeaderText = "Автори" },
+                        new DataGridViewTextBoxColumn { Name = "Publisher", DataPropertyName = "Publisher", HeaderText = "Видавництво" },
+                        new DataGridViewTextBoxColumn { Name = "Year", DataPropertyName = "Year", HeaderText = "Рік" },
+                        new DataGridViewTextBoxColumn { Name = "ISBN", DataPropertyName = "ISBN", HeaderText = "ISBN" },
+                        new DataGridViewTextBoxColumn { Name = "Origin", DataPropertyName = "Origin", HeaderText = "Походження" },
+                        new DataGridViewComboBoxColumn { Name = "Status", DataPropertyName = "Status", HeaderText = "Статус", DataSource = Enum.GetValues(typeof(BookStatus)) },
+                        new DataGridViewTextBoxColumn { Name = "Rating", HeaderText = "Оцінка", DataPropertyName = "Rating" },
+                        new DataGridViewTextBoxColumn { Name = "Review", HeaderText = "Відгук", DataPropertyName = "Review" }
+                    ]
+                );
+            }
         }
 
-        private void dgvBooks_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        private void DgvBooks_CellValidating(object? sender, DataGridViewCellValidatingEventArgs e)
         {
-            var colName = dgvBooks.Columns[e.ColumnIndex].Name;
+            if (dgvBooks?.Columns == null) return;
+
+            var colName = dgvBooks.Columns[e.ColumnIndex]?.Name;
+
+            if (colName == null) return;
+
+            if (dgvBooks.Rows == null || e.RowIndex < 0 || e.RowIndex >= dgvBooks.Rows.Count || dgvBooks.Rows[e.RowIndex] == null) return;
+
             if (colName == "Year")
             {
-                if (!int.TryParse(e.FormattedValue.ToString(), out int year) || year <= 0)
+                if (!int.TryParse(e.FormattedValue?.ToString(), out int year) || year <= 0)
                 {
                     dgvBooks.Rows[e.RowIndex].ErrorText = "Рік має бути додатнім числом";
                     e.Cancel = true;
@@ -249,7 +331,7 @@ namespace PersonalLibrary
             }
             if (colName == "Rating")
             {
-                if (!int.TryParse(e.FormattedValue.ToString(), out int score) || score < 1 || score > 5)
+                if (!int.TryParse(e.FormattedValue?.ToString(), out int score) || score < 1 || score > 5)
                 {
                     dgvBooks.Rows[e.RowIndex].ErrorText = "Оцінка має бути від 1 до 5";
                     e.Cancel = true;
@@ -257,35 +339,11 @@ namespace PersonalLibrary
             }
         }
 
-        private void dgvBooks_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        private void DgvBooks_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
         {
+            if (dgvBooks?.Rows == null || e.RowIndex < 0 || e.RowIndex >= dgvBooks.Rows.Count || dgvBooks.Rows[e.RowIndex] == null) return;
+
             dgvBooks.Rows[e.RowIndex].ErrorText = string.Empty;
-            /* Оновлення даних у _library на основі змін у DataGridView одразу
-            var row = dgvBooks.Rows[e.RowIndex];
-            if (row.DataBoundItem is Book book)
-            {
-                var colName = dgvBooks.Columns[e.ColumnIndex].Name;
-                var value = row.Cells[e.ColumnIndex].Value;
-                switch (colName)
-                {
-                    case "Title": book.Title = value?.ToString(); break;
-                    case "Authors": book.Authors = value?.ToString(); break;
-                    case "Publisher": book.Publisher = value?.ToString(); break;
-                    case "Year": book.Year = int.TryParse(value?.ToString(), out int year) ? year : 0; break;
-                    case "ISBN": book.ISBN = value?.ToString(); break;
-                    case "Origin": book.Origin = value?.ToString(); break;
-                    case "Status": book.Status = (BookStatus)value; break;
-                    case "Rating":
-                        if (book.Rating == null) book.Rating = new UserRating();
-                        book.Rating.Score = int.TryParse(value?.ToString(), out int score) ? score : 0;
-                        break;
-                    case "Review":
-                        if (book.Rating == null) book.Rating = new UserRating();
-                        book.Rating.Review = value?.ToString();
-                        break;
-                }
-            }
-            */
         }
         
         private void SaveLibrary()
@@ -293,8 +351,16 @@ namespace PersonalLibrary
             try
             {
                 SyncBooksFromGrid();
-                _library.SerializeData(DataFile);
-                MessageBox.Show("Дані успішно збережено!", "Збереження", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (_library != null)
+                {
+                    _library.SerializeData(DataFile);
+                    MessageBox.Show("Дані успішно збережено!", "Збереження", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    _isLibraryModified = false;
+                }
+                else
+                {
+                    MessageBox.Show("Помилка: об'єкт бібліотеки відсутній.", "Помилка збереження", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             catch (Exception ex)
             {
@@ -310,39 +376,82 @@ namespace PersonalLibrary
                 {
                     _library = Library.DeserializeData(DataFile);
                     if (_library == null)
+                    {
+                        MessageBox.Show("Помилка десеріалізації даних. Завантажено тестові дані.", "Помилка завантаження", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         _library = TestDataGenerator.Generate();
-                    UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
-                    MessageBox.Show("Дані успішно завантажено!", "Завантаження", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Дані успішно завантажено!", "Завантаження", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+
+                    if (_library != null)
+                    {
+                        UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("Файл збереження не знайдено!", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Файл збереження не знайдено! Створено нову бібліотеку.", "Попередження", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    _library = TestDataGenerator.Generate();
+                    if (_library != null)
+                    {
+                        UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
+                    }
                 }
+                _isLibraryModified = false;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Помилка при завантаженні: {ex.Message}", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _library = TestDataGenerator.Generate();
+                if (_library != null)
+                {
+                    UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
+                }
+                _isLibraryModified = false;
             }
         }
 
         private void SyncBooksFromGrid()
         {
-            // Оновлюємо дані у _library на основі DataGridView
+            if (dgvBooks?.Rows == null || _library == null) return;
+
             foreach (DataGridViewRow row in dgvBooks.Rows)
             {
                 if (row.DataBoundItem is BookView bookView)
                 {
                     var book = bookView.BookRef;
-                    book.Title = row.Cells["Title"].Value?.ToString();
-                    book.Authors = row.Cells["Authors"].Value?.ToString();
-                    book.Publisher = row.Cells["Publisher"].Value?.ToString();
-                    book.Year = int.TryParse(row.Cells["Year"].Value?.ToString(), out int year) ? year : 0;
-                    book.ISBN = row.Cells["ISBN"].Value?.ToString();
-                    book.Origin = row.Cells["Origin"].Value?.ToString();
-                    book.Status = (BookStatus)row.Cells["Status"].Value;
-                    if (book.Rating == null) book.Rating = new UserRating();
-                    book.Rating.Score = int.TryParse(row.Cells["Rating"].Value?.ToString(), out int score) ? score : 0;
-                    book.Rating.Review = row.Cells["Review"].Value?.ToString();
+                    if (book != null)
+                    {
+                        if (row.Cells == null) continue;
+
+                        book.Title = row.Cells["Title"]?.Value?.ToString() ?? "";
+                        book.Authors = row.Cells["Authors"]?.Value?.ToString() ?? "";
+                        book.Publisher = row.Cells["Publisher"]?.Value?.ToString() ?? "";
+
+                        if (row.Cells["Year"]?.Value != null && int.TryParse(row.Cells["Year"].Value.ToString(), out int yearResult))
+                        {
+                            book.Year = yearResult;
+                        } else {
+                        }
+
+                        book.ISBN = row.Cells["ISBN"]?.Value?.ToString() ?? "";
+                        book.Origin = row.Cells["Origin"]?.Value?.ToString() ?? "";
+                        
+                        if (row.Cells["Status"]?.Value is BookStatus status) book.Status = status;
+
+                        book.Rating ??= new UserRating();
+                        
+                        if (row.Cells["Rating"]?.Value != null && int.TryParse(row.Cells["Rating"].Value.ToString(), out int scoreResult))
+                        {
+                            book.Rating.Score = scoreResult;
+                        } else {
+                        }
+                        
+                        book.Rating.Review = row.Cells["Review"]?.Value?.ToString() ?? "";
+                        _isLibraryModified = true;
+                    }
                 }
             }
         }
