@@ -6,6 +6,10 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
 
 namespace PersonalLibrary
 {
@@ -35,6 +39,8 @@ namespace PersonalLibrary
             dgvBooks.CellEndEdit += DgvBooks_CellEndEdit;
             btnSearch.Click += BtnSearch_Click;
             btnDeepSearch.Click += BtnDeepSearch_Click;
+            this.KeyPreview = true;
+            this.KeyDown += Form1_KeyDown;
         }
 
         private void Form1_Load(object? sender, EventArgs e)
@@ -148,7 +154,7 @@ namespace PersonalLibrary
                 var selectedBook = selectedView.BookRef;
                 if (selectedBook != null && _library != null)
                 {
-                    using var form = new EditBookForm(selectedBook, _library);
+                    using var form = new EditBookForm(selectedBook, _library, _library.Sections);
                     if (form.ShowDialog() == DialogResult.OK)
                     {
                         UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
@@ -220,17 +226,18 @@ namespace PersonalLibrary
                     return;
                 }
                 using var sfd = new SaveFileDialog();
-                sfd.Filter = "Text files (*.txt)|*.txt|CSV files (*.csv)|*.csv";
+                sfd.Filter = "Text files (*.txt)|*.txt";
                 sfd.Title = "Зберегти звіт";
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
                     try
                     {
                         using var sw = new StreamWriter(sfd.FileName);
-                        sw.WriteLine("Назва;Автор(и);Видавництво;Рік;ISBN;Походження;Статус;Оцінка;Відгук;Розділ");
+                        sw.WriteLine("Book Info");
                         foreach (var bookView in bookViews)
                         {
-                            sw.WriteLine($"{bookView.Title?.Replace(";", ",") ?? ""};{bookView.Authors?.Replace(";", ",") ?? ""};{bookView.Publisher?.Replace(";", ",") ?? ""};{bookView.Year};{bookView.ISBN?.Replace(";", ",") ?? ""};{bookView.Origin?.Replace(";", ",") ?? ""};{bookView.Status};{bookView.Rating};{bookView.Review?.Replace(";", ",") ?? ""};{bookView.Section?.Replace(";", ",") ?? ""}");
+                            var bookInfo = bookView.BookRef?.GetInfo() ?? "";
+                            sw.WriteLine(bookInfo.Replace(";", ","));
                         }
                         MessageBox.Show("Звіт збережено у файл:\n" + sfd.FileName, "Звіт", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
@@ -451,6 +458,27 @@ namespace PersonalLibrary
                         
                         book.Rating.Review = row.Cells["Review"]?.Value?.ToString() ?? "";
                         _isLibraryModified = true;
+                    }
+                }
+            }
+        }
+
+        private void Form1_KeyDown(object? sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+            {
+                BtnDelete_Click(dgvBooks, EventArgs.Empty);
+                e.Handled = true;
+            }
+
+            if (e.KeyCode == Keys.Enter)
+            {
+                if (dgvBooks.ContainsFocus || dgvBooks.Focused)
+                {
+                     if (dgvBooks.SelectedRows.Count > 0)
+                    {
+                        BtnEdit_Click(dgvBooks, EventArgs.Empty);
+                        e.Handled = true;
                     }
                 }
             }

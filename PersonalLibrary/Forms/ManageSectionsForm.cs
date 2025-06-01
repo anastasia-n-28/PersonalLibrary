@@ -22,6 +22,9 @@ namespace PersonalLibrary.Forms
             LoadSections();
             this.MinimumSize = new System.Drawing.Size(600, 400);
             this.Size = new System.Drawing.Size(800, 500);
+            this.CancelButton = btnClose; // Esc
+            this.KeyPreview = true;
+            this.KeyPress += ManageSectionsForm_KeyPress; // Enter
         }
 
         private void InitializeControls()
@@ -32,7 +35,8 @@ namespace PersonalLibrary.Forms
             lstSections = new ListBox
             {
                 Dock = DockStyle.Fill,
-                SelectionMode = SelectionMode.One
+                SelectionMode = SelectionMode.One,
+                TabIndex = 0
             };
 
             var buttonPanel = new FlowLayoutPanel
@@ -46,7 +50,8 @@ namespace PersonalLibrary.Forms
             {
                 Text = "Закрити",
                 Height = 40,
-                Width = 120
+                Width = 120,
+                TabIndex = 4
             };
             btnClose.Click += (s, e) => this.Close();
 
@@ -54,7 +59,8 @@ namespace PersonalLibrary.Forms
             {
                 Text = "Видалити",
                 Height = 40,
-                Width = 150
+                Width = 150,
+                TabIndex = 3
             };
             btnDelete.Click += BtnDelete_Click;
 
@@ -62,7 +68,8 @@ namespace PersonalLibrary.Forms
             {
                 Text = "Редагувати",
                 Height = 40,
-                Width = 150
+                Width = 150,
+                TabIndex = 2
             };
             btnEdit.Click += BtnEdit_Click;
 
@@ -70,7 +77,8 @@ namespace PersonalLibrary.Forms
             {
                 Text = "Додати",
                 Height = 40,
-                Width = 120
+                Width = 120,
+                TabIndex = 1
             };
             btnAdd.Click += BtnAdd_Click;
 
@@ -144,6 +152,23 @@ namespace PersonalLibrary.Forms
                 LoadSections();
             }
         }
+
+        private void ManageSectionsForm_KeyPress(object? sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                e.Handled = true;
+
+                if (lstSections != null && lstSections.SelectedIndex != -1)
+                {
+                    BtnEdit_Click(lstSections, EventArgs.Empty);
+                }
+                else
+                {
+                    BtnAdd_Click(lstSections, EventArgs.Empty);
+                }
+            }
+        }
     }
 
     public class InputDialog : Form
@@ -173,7 +198,8 @@ namespace PersonalLibrary.Forms
             {
                 Text = defaultValue,
                 Dock = DockStyle.Top,
-                Margin = new Padding(10)
+                Margin = new Padding(10),
+                TabIndex = 0 
             };
 
             var buttonPanel = new FlowLayoutPanel
@@ -188,7 +214,8 @@ namespace PersonalLibrary.Forms
                 Text = "Скасувати",
                 Height = 40,
                 Width = 150,
-                DialogResult = DialogResult.Cancel
+                DialogResult = DialogResult.Cancel,
+                TabIndex = 2
             };
 
             btnOK = new Button
@@ -196,7 +223,8 @@ namespace PersonalLibrary.Forms
                 Text = "OK",
                 Height = 40,
                 Width = 80,
-                DialogResult = DialogResult.OK
+                DialogResult = DialogResult.OK,
+                TabIndex = 1
             };
             btnOK.Click += (s, e) =>
             {
@@ -206,8 +234,8 @@ namespace PersonalLibrary.Forms
             buttonPanel.Controls.AddRange([btnCancel, btnOK]);
 
             this.Controls.AddRange([label, txtInput, buttonPanel]);
-            this.AcceptButton = btnOK;
-            this.CancelButton = btnCancel;
+            this.AcceptButton = btnOK; // Enter
+            this.CancelButton = btnCancel; // Esc
         }
     }
-} 
+}

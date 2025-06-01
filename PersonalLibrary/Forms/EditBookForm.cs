@@ -2,6 +2,7 @@ using System;
 using System.Windows.Forms;
 using PersonalLibrary.Models;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace PersonalLibrary.Forms
 {
@@ -9,14 +10,19 @@ namespace PersonalLibrary.Forms
     {
         private readonly Book _book;
         private readonly Library _library;
+        private readonly List<LibrarySection> _sections;
 
-        public EditBookForm(Book book, Library library)
+        public EditBookForm(Book book, Library library, List<LibrarySection> sections)
         {
             _book = book ?? throw new ArgumentNullException(nameof(book));
             _library = library ?? throw new ArgumentNullException(nameof(library));
+            _sections = sections ?? throw new ArgumentNullException(nameof(sections));
 
             InitializeComponent();
+            PopulateSectionsDropdown();
             LoadBookData();
+            this.AcceptButton = btnOK;
+            this.CancelButton = btnCancel;
         }
 
         private void LoadBookData()
@@ -37,7 +43,10 @@ namespace PersonalLibrary.Forms
             {
                 cmbSection.SelectedItem = currentSection.Name;
             }
-            if (cmbSection.Items.Count > 0 && cmbSection.SelectedItem == null) cmbSection.SelectedIndex = 0;
+            else if (cmbSection.Items.Count > 0)
+            {
+                cmbSection.SelectedIndex = 0;
+            }
 
             if (_book.Rating != null)
             {
@@ -53,6 +62,15 @@ namespace PersonalLibrary.Forms
             btnOK!.Click += BtnOK_Click;
             btnCancel!.Click += BtnCancel_Click;
             btnAddSection!.Click += BtnAddSection_Click;
+        }
+
+        private void PopulateSectionsDropdown()
+        {
+            cmbSection.Items.Clear();
+            foreach (var section in _sections)
+            {
+                cmbSection.Items.Add(section.Name);
+            }
         }
 
         private void BtnAddSection_Click(object? sender, EventArgs e)

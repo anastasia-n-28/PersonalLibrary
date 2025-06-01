@@ -6,13 +6,22 @@ namespace PersonalLibrary.Forms
 {
     public class HelpForm : Form
     {
-        private RichTextBox richTextBox;
+        private readonly RichTextBox richTextBox;
         public HelpForm()
         {
             this.Text = "Довідка";
             this.WindowState = FormWindowState.Maximized;
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.Size = Screen.PrimaryScreen.WorkingArea.Size;
+
+            if (Screen.PrimaryScreen != null)
+            {
+                Size = Screen.PrimaryScreen.WorkingArea.Size;
+            }
+            else
+            {
+                Size = new System.Drawing.Size(800, 600);
+            }
+
             richTextBox = new RichTextBox
             {
                 Dock = DockStyle.Fill,
