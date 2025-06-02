@@ -6,12 +6,21 @@ using System.Collections.Generic;
 
 namespace PersonalLibrary.Forms
 {
+    /// <summary>
+    /// Представляє форму для редагування існуючої книги в бібліотеці.
+    /// </summary>
     public partial class EditBookForm : Form
     {
         private readonly Book _book;
         private readonly Library _library;
         private readonly List<LibrarySection> _sections;
 
+        /// <summary>
+        /// Ініціалізує новий екземпляр класу EditBookForm.
+        /// </summary>
+        /// <param name="book">Об'єкт книги для редагування.</param>
+        /// <param name="library">Інстанс бібліотеки, що містить книгу.</param>
+        /// <param name="sections">Список доступних розділів бібліотеки.</param>
         public EditBookForm(Book book, Library library, List<LibrarySection> sections)
         {
             _book = book ?? throw new ArgumentNullException(nameof(book));
@@ -25,6 +34,9 @@ namespace PersonalLibrary.Forms
             this.CancelButton = btnCancel;
         }
 
+        /// <summary>
+        /// Завантажує дані з об'єкта книги в контролі форми.
+        /// </summary>
         private void LoadBookData()
         {
             txtTitle!.Text = _book.Title ?? "";
@@ -64,6 +76,9 @@ namespace PersonalLibrary.Forms
             btnAddSection!.Click += BtnAddSection_Click;
         }
 
+        /// <summary>
+        /// Заповнює випадаючий список розділів доступними розділами бібліотеки.
+        /// </summary>
         private void PopulateSectionsDropdown()
         {
             cmbSection.Items.Clear();
@@ -73,6 +88,12 @@ namespace PersonalLibrary.Forms
             }
         }
 
+        /// <summary>
+        /// Обробляє подію Click кнопки "Додати розділ".
+        /// Відкриває форму для управління розділами і оновлює випадаючий список.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void BtnAddSection_Click(object? sender, EventArgs e)
         {
             using var form = new ManageSectionsForm(_library);
@@ -82,6 +103,13 @@ namespace PersonalLibrary.Forms
             if (cmbSection.Items.Count > 0) cmbSection.SelectedIndex = 0;
         }
 
+        /// <summary>
+        /// Обробляє подію Click кнопки OK.
+        /// Перевіряє валідність введених даних і оновлює об'єкт книги.
+        /// Встановлює DialogResult на OK, якщо успішно, інакше Cancel.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void BtnOK_Click(object? sender, EventArgs e)
         {
             string error = "";
@@ -134,6 +162,12 @@ namespace PersonalLibrary.Forms
             DialogResult = DialogResult.OK;
         }
 
+        /// <summary>
+        /// Обробляє подію Click кнопки Відміна.
+        /// Встановлює DialogResult на Cancel і закриває форму.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void BtnCancel_Click(object? sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;

@@ -6,6 +6,9 @@ using PersonalLibrary.Models;
 
 namespace PersonalLibrary.Forms
 {
+    /// <summary>
+    /// Представляє форму для розширеного пошуку книг.
+    /// </summary>
     public partial class AdvancedSearchForm : Form
     {
         private readonly Library _library;
@@ -21,8 +24,15 @@ namespace PersonalLibrary.Forms
         private Button btnSearch = null!;
         private Button btnClose = null!;
 
+        /// <summary>
+        /// Отримує результати розширеного пошуку.
+        /// </summary>
         public List<Book>? SearchResults { get; private set; }
 
+        /// <summary>
+        /// Ініціалізує новий екземпляр класу AdvancedSearchForm.
+        /// </summary>
+        /// <param name="library">Екземпляр бібліотеки для пошуку.</param>
         public AdvancedSearchForm(Library library)
         {
             _library = library ?? throw new ArgumentNullException(nameof(library));
@@ -31,6 +41,9 @@ namespace PersonalLibrary.Forms
             InitializeControls();
         }
 
+        /// <summary>
+        /// Ініціалізує елементи на формі.
+        /// </summary>
         private void InitializeControls()
         {
             this.Text = "Розширений пошук";
@@ -154,6 +167,12 @@ namespace PersonalLibrary.Forms
             this.Controls.Add(resultsPanel);
         }
 
+        /// <summary>
+        /// Обробляє подію Click кнопки Пошук.
+        /// Виконує розширений пошук на основі вибраних критеріїв.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void BtnSearch_Click(object? sender, EventArgs e)
         {
             try
@@ -244,23 +263,66 @@ namespace PersonalLibrary.Forms
             }
         }
 
+        /// <summary>
+        /// Обробляє подію Click кнопки Закрити.
+        /// Закриває форму розширеного пошуку.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void BtnClose_Click(object? sender, EventArgs e)
         {
             this.DialogResult = DialogResult.Cancel;
         }
 
+        /// <summary>
+        /// Представляє спрощений відображення моделі для відображення інформації про книгу у DataGridView.
+        /// Це вкладений клас у класі AdvancedSearchForm.
+        /// </summary>
         public class BookView
         {
+            /// <summary>
+            /// Отримує або встановлює назву розділу.
+            /// </summary>
             public string? Section { get; set; }
+            /// <summary>
+            /// Отримує або встановлює назву книги.
+            /// </summary>
             public string? Title { get; set; }
+            /// <summary>
+            /// Отримує або встановлює автора.
+            /// </summary>
             public string? Authors { get; set; }
+            /// <summary>
+            /// Отримує або встановлює видавництво.
+            /// </summary>
             public string? Publisher { get; set; }
+            /// <summary>
+            /// Отримує або встановлює рік видання.
+            /// </summary>
             public int Year { get; set; }
+            /// <summary>
+            /// Отримує або встановлює ISBN.
+            /// </summary>
             public string? ISBN { get; set; }
+            /// <summary>
+            /// Отримує або встановлює країну походження.
+            /// </summary>
             public string? Origin { get; set; }
+            /// <summary>
+            /// Отримує або встановлює статус книги.
+            /// </summary>
             public BookStatus Status { get; set; }
+            /// <summary>
+            /// Отримує або встановлює оцінку користувача.
+            /// </summary>
             public int Rating { get; set; }
+            /// <summary>
+            /// Отримує або встановлює текст відгуку користувача.
+            /// </summary>
             public string? Review { get; set; }
+            /// <summary>
+            /// Отримує або встановлює посилання на оригінальний об'єкт Book.
+            /// </summary>
             public Book? BookRef { get; set; }
         }
     }

@@ -4,9 +4,15 @@ using System.Windows.Forms;
 
 namespace PersonalLibrary.Forms
 {
+    /// <summary>
+    /// Представляє форму довідки для програми.
+    /// </summary>
     public class HelpForm : Form
     {
         private readonly RichTextBox richTextBox;
+        /// <summary>
+        /// Ініціалізує новий екземпляр класу HelpForm.
+        /// </summary>
         public HelpForm()
         {
             this.Text = "Довідка";
@@ -33,17 +39,13 @@ namespace PersonalLibrary.Forms
             this.Controls.Add(richTextBox);
             LoadHelpText();
         }
+        /// <summary>
+        /// Завантажує текст довідки в RichTextBox.
+        /// </summary>
         private void LoadHelpText()
         {
-            string helpFile = "help.txt";
-            if (File.Exists(helpFile))
-            {
-                richTextBox.Text = File.ReadAllText(helpFile);
-            }
-            else
-            {
-                richTextBox.Text = "Файл довідки help.txt не знайдено.\n\n1. Додайте книги...\n2. Використовуйте пошук...\n...";
-            }
+            richTextBox.Text = "Інструкція до використання програми:\n" +
+                "\nЗверніться до розробника за детальнішою інформацією.";
         }
     }
-} 
+}

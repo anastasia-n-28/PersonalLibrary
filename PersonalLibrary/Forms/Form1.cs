@@ -13,6 +13,9 @@ using System.Drawing;
 
 namespace PersonalLibrary
 {
+    /// <summary>
+    /// Основна форма програми "Особиста бібліотека".
+    /// </summary>
     public partial class Form1 : Form
     {
         private Library? _library;
@@ -20,7 +23,11 @@ namespace PersonalLibrary
         private readonly BindingSource booksBindingSource = [];
         private bool _isLibraryModified = false;
         private bool _isAdvancedSearchFormOpen = false;
+        private bool _noBooksMessageShown = false;
         
+        /// <summary>
+        /// Ініціалізує новий екземпляр класу Form1.
+        /// </summary>
         public Form1()
         {
             InitializeComponent();
@@ -43,6 +50,12 @@ namespace PersonalLibrary
             this.KeyDown += Form1_KeyDown;
         }
 
+        /// <summary>
+        /// Обробляє подію Load форми.
+        /// Завантажує дані бібліотеки при запуску програми.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void Form1_Load(object? sender, EventArgs e)
         {
             if (File.Exists(DataFile))
@@ -59,6 +72,12 @@ namespace PersonalLibrary
             UpdateDataGridView(_library?.Sections.SelectMany(s => s.Books));
         }
 
+        /// <summary>
+        /// Обробляє подію FormClosing форми.
+        /// Запитує користувача зберегти зміни перед закриттям.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void Form1_FormClosing(object? sender, FormClosingEventArgs e)
         {
             if (_isLibraryModified)
@@ -75,6 +94,12 @@ namespace PersonalLibrary
             }
         }
 
+        /// <summary>
+        /// Обробляє подію Click кнопки пошуку.
+        /// Виконує пошук на основі значень у текстовому полі.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void BtnSearch_Click(object? sender, EventArgs e)
         {
             var title = txtTitle.Text;
@@ -84,12 +109,19 @@ namespace PersonalLibrary
             var results = _library?.FindBooks(title, author, publisher);
             UpdateDataGridView(results);
 
-            if (results == null || !results.Any())
+            if ((results == null || !results.Any()) && !_noBooksMessageShown)
             {
                 MessageBox.Show("Книг не знайдено", "Пошук", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                _noBooksMessageShown = true;
             }
         }
 
+        /// <summary>
+        /// Обробляє подію Click кнопки розширеного пошуку.
+        /// Відкриває форму розширеного пошуку.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private async void BtnDeepSearch_Click(object? sender, EventArgs e)
         {
             if (_isAdvancedSearchFormOpen) return;
@@ -115,6 +147,12 @@ namespace PersonalLibrary
             }
         }
 
+        /// <summary>
+        /// Обробляє подію Click кнопки додавання книги.
+        /// Відкриває форму додавання книги.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void BtnAdd_Click(object? sender, EventArgs e)
         {
             if (_library != null)
@@ -141,6 +179,12 @@ namespace PersonalLibrary
             }
         }
 
+        /// <summary>
+        /// Обробляє подію Click кнопки редагування книги.
+        /// Відкриває форму редагування книги для вибраної книги.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void BtnEdit_Click(object? sender, EventArgs e)
         {
             if (dgvBooks.SelectedRows.Count == 0)
@@ -164,6 +208,12 @@ namespace PersonalLibrary
             }
         }
 
+        /// <summary>
+        /// Обробляє подію Click кнопки видалення книги.
+        /// Видаляє вибрану книгу після підтвердження.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void BtnDelete_Click(object? sender, EventArgs e)
         {
             if (dgvBooks.SelectedRows.Count == 0)
@@ -198,6 +248,12 @@ namespace PersonalLibrary
             }
         }
 
+        /// <summary>
+        /// Обробляє подію Click кнопки керування розділами.
+        /// Відкриває форму керування розділами.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void BtnManageSections_Click(object? sender, EventArgs e)
         {
             if (_library != null)
@@ -209,12 +265,24 @@ namespace PersonalLibrary
             }
         }
         
+        /// <summary>
+        /// Обробляє подію Click кнопки довідки.
+        /// Відкриває форму довідки.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void BtnHelp_Click(object? sender, EventArgs e)
         {
-            string helpText = "Інструкція користувача:\n\n1. Додайте книги...\n2. Використовуйте пошук...\n...";
-            MessageBox.Show(helpText, "Довідка", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            using var form = new HelpForm();
+            form.ShowDialog();
         }
 
+        /// <summary>
+        /// Обробляє подію Click кнопки звіту.
+        /// Генерує та зберігає звіт про поточну список книг.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void BtnReport_Click(object? sender, EventArgs e)
         {
             if (booksBindingSource.DataSource is List<BookView> bookViews)
@@ -252,21 +320,61 @@ namespace PersonalLibrary
             }
         }
 
+        /// <summary>
+        /// Представляє спрощене відображення моделі для відображення інформації про книги в DataGridView.
+        /// </summary>
         public class BookView
         {
+            /// <summary>
+            /// Отримує або встановлює назву розділу.
+            /// </summary>
             public string? Section { get; set; }
+            /// <summary>
+            /// Отримує або встановлює назву книги.
+            /// </summary>
             public string? Title { get; set; }
+            /// <summary>
+            /// Отримує або встановлює автора книги.
+            /// </summary>
             public string? Authors { get; set; }
+            /// <summary>
+            /// Отримує або встановлює видавництво книги.
+            /// </summary>
             public string? Publisher { get; set; }
+            /// <summary>
+            /// Отримує або встановлює рік видання книги.
+            /// </summary>
             public int Year { get; set; }
+            /// <summary>
+            /// Отримує або встановлює ISBN книги.
+            /// </summary>
             public string? ISBN { get; set; }
+            /// <summary>
+            /// Отримує або встановлює країну походження книги.
+            /// </summary>
             public string? Origin { get; set; }
+            /// <summary>
+            /// Отримує або встановлює статус книги.
+            /// </summary>
             public BookStatus Status { get; set; }
+            /// <summary>
+            /// Отримує або встановлює оцінку користувача.
+            /// </summary>
             public int Rating { get; set; }
+            /// <summary>
+            /// Отримує або встановлює текст відгуку користувача.
+            /// </summary>
             public string? Review { get; set; }
+            /// <summary>
+            /// Отримує або встановлює посилання на оригінальний об'єкт книги.
+            /// </summary>
             public Book? BookRef { get; set; }
         }
 
+        /// <summary>
+        /// Оновлює DataGridView з наданим списком книг.
+        /// </summary>
+        /// <param name="books">Список книг для відображення.</param>
         private void UpdateDataGridView(IEnumerable<Book>? books)
         {
             if (books == null)
@@ -317,6 +425,12 @@ namespace PersonalLibrary
             }
         }
 
+        /// <summary>
+        /// Обробляє подію CellValidating DataGridView.
+        /// Перевіряє валідність введених даних у конкретних комірках.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void DgvBooks_CellValidating(object? sender, DataGridViewCellValidatingEventArgs e)
         {
             if (dgvBooks?.Columns == null) return;
@@ -345,6 +459,12 @@ namespace PersonalLibrary
             }
         }
 
+        /// <summary>
+        /// Обробляє подію CellEndEdit DataGridView.
+        /// Очищає текст помилки для відредагованої комірки.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void DgvBooks_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
         {
             if (dgvBooks?.Rows == null || e.RowIndex < 0 || e.RowIndex >= dgvBooks.Rows.Count || dgvBooks.Rows[e.RowIndex] == null) return;
@@ -352,6 +472,9 @@ namespace PersonalLibrary
             dgvBooks.Rows[e.RowIndex].ErrorText = string.Empty;
         }
         
+        /// <summary>
+        /// Зберігає поточний стан бібліотеки у файл JSON.
+        /// </summary>
         private void SaveLibrary()
         {
             try
@@ -374,6 +497,10 @@ namespace PersonalLibrary
             }
         }
 
+        /// <summary>
+        /// Завантажує дані бібліотеки з файлу JSON.
+        /// Якщо файл не існує або завантаження не вдалося, генерує тестові дані.
+        /// </summary>
         private void LoadLibrary()
         {
             try
@@ -419,6 +546,9 @@ namespace PersonalLibrary
             }
         }
 
+        /// <summary>
+        /// Синхронізує дані книги з DataGridView назад до об'єкта бібліотеки.
+        /// </summary>
         private void SyncBooksFromGrid()
         {
             if (dgvBooks?.Rows == null || _library == null) return;
@@ -462,6 +592,12 @@ namespace PersonalLibrary
             }
         }
 
+        /// <summary>
+        /// Обробляє подію KeyDown форми.
+        /// Надає скорочення для дій видалення та редагування.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void Form1_KeyDown(object? sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Delete)

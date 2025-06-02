@@ -5,6 +5,9 @@ using PersonalLibrary.Models;
 
 namespace PersonalLibrary.Forms
 {
+    /// <summary>
+    /// Представляє форму для управління розділами бібліотеки.
+    /// </summary>
     public partial class ManageSectionsForm : Form
     {
         private readonly Library _library;
@@ -14,6 +17,10 @@ namespace PersonalLibrary.Forms
         private Button? btnDelete;
         private Button? btnClose;
 
+        /// <summary>
+        /// Ініціалізує новий екземпляр класу ManageSectionsForm.
+        /// </summary>
+        /// <param name="library">Екземпляр бібліотеки для управління розділами.</param>
         public ManageSectionsForm(Library library)
         {
             InitializeComponent();
@@ -27,6 +34,9 @@ namespace PersonalLibrary.Forms
             this.KeyPress += ManageSectionsForm_KeyPress; // Enter
         }
 
+        /// <summary>
+        /// Ініціалізує контролі на формі.
+        /// </summary>
         private void InitializeControls()
         {
             this.Text = "Управління розділами";
@@ -88,6 +98,10 @@ namespace PersonalLibrary.Forms
             this.Controls.Add(buttonPanel);
         }
 
+        /// <summary>
+        /// Завантажує розділи бібліотеки в ListBox.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Викидається попередження, якщо список розділів не ініціалізований.</exception>
         private void LoadSections()
         {
             if (lstSections == null)
@@ -100,6 +114,12 @@ namespace PersonalLibrary.Forms
             }
         }
 
+        /// <summary>
+        /// Обробляє подію Click кнопки Додати.
+        /// Відкриває діалогове вікно для додавання нового розділу.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void BtnAdd_Click(object? sender, EventArgs e)
         {
             using var inputForm = new InputDialog("Нова секція", "Введіть назву секції:");
@@ -114,6 +134,12 @@ namespace PersonalLibrary.Forms
             }
         }
 
+        /// <summary>
+        /// Обробляє подію Click кнопки Редагувати.
+        /// Відкриває діалогове вікно для перейменування вибраного розділу.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void BtnEdit_Click(object? sender, EventArgs e)
         {
             if (lstSections == null || lstSections.SelectedIndex == -1) return;
@@ -133,6 +159,12 @@ namespace PersonalLibrary.Forms
             }
         }
 
+        /// <summary>
+        /// Обробляє подію Click кнопки Видалити.
+        /// Видаляє вибраний розділ після підтвердження.
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void BtnDelete_Click(object? sender, EventArgs e)
         {
             if (lstSections == null || lstSections.SelectedIndex == -1) return;
@@ -153,6 +185,12 @@ namespace PersonalLibrary.Forms
             }
         }
 
+        /// <summary>
+        /// Обробляє подію KeyPress для форми.
+        /// Дозволяє додавання або редагування розділів за допомогою клавіші Enter. 
+        /// </summary>
+        /// <param name="sender">Джерело події.</param>
+        /// <param name="e">Екземпляр, що містить дані події.</param>
         private void ManageSectionsForm_KeyPress(object? sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == (char)Keys.Enter)
@@ -171,13 +209,25 @@ namespace PersonalLibrary.Forms
         }
     }
 
+    /// <summary>
+    /// A simple dialog form for getting text input from the user.
+    /// </summary>
     public class InputDialog : Form
     {
+        /// <summary>
+        /// Gets the text entered by the user.
+        /// </summary>
         public string InputText { get; private set; } = string.Empty;
         private readonly TextBox txtInput;
         private readonly Button btnOK;
         private readonly Button btnCancel;
 
+        /// <summary>
+        /// Initializes a new instance of the InputDialog class.
+        /// </summary>
+        /// <param name="title">The title of the dialog window.</param>
+        /// <param name="prompt">The text prompt to display to the user.</param>
+        /// <param name="defaultValue">The default text value for the input field.</param>
         public InputDialog(string title, string prompt, string defaultValue = "")
         {
             this.Text = title;
