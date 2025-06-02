@@ -255,7 +255,7 @@ namespace PersonalLibrary.Models
                     Title = "The Odyssey",
                     Authors = "Homer",
                     Publisher = "Penguin Classics",
-                    Year = -800,
+                    Year = 800,
                     ISBN = "978-0-14-026886-6",
                     Origin = "Ancient Greece",
                     Status = BookStatus.Finished,

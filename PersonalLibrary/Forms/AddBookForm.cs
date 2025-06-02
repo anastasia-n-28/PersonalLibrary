@@ -2,7 +2,7 @@ using System;
 using System.Windows.Forms;
 using PersonalLibrary.Models;
 using System.Linq;
-using Microsoft.VisualBasic; // Потрібно для Interaction.InputBox
+using Microsoft.VisualBasic;
 
 namespace PersonalLibrary.Forms
 {
@@ -16,17 +16,31 @@ namespace PersonalLibrary.Forms
             _library = library ?? throw new ArgumentNullException(nameof(library));
 
             InitializeComponent();
-
             cmbStatus.DataSource = Enum.GetValues(typeof(BookStatus));
 
             PopulateSectionsDropdown();
-            PopulateRatingDropdown();
 
             btnOK.Click += BtnOK_Click;
             btnCancel.Click += BtnCancel_Click;
             btnAddSection.Click += BtnAddSection_Click;
+
             this.AcceptButton = btnOK;
             this.CancelButton = btnCancel;
+
+            this.Shown += AddBookForm_Shown;
+
+            numRating.ValueChanged += NumRating_ValueChanged;
+        }
+
+        private void AddBookForm_Shown(object? sender, EventArgs e)
+        {
+            numRating.BringToFront();
+            numRating.Select();
+            numRating.Update();
+            numRating.Invalidate();
+            numRating.PerformLayout();
+
+            NumRating_ValueChanged(numRating, EventArgs.Empty);
         }
 
         private void PopulateSectionsDropdown()
@@ -35,17 +49,6 @@ namespace PersonalLibrary.Forms
             cmbSection.Items.Add("Оберіть розділ");
             cmbSection.Items.AddRange([.. _library.Sections.Select(s => s.Name)]);
             if (cmbSection.Items.Count > 0) cmbSection.SelectedIndex = 0;
-        }
-
-        private void PopulateRatingDropdown()
-        {
-            cmbRating.Items.Clear();
-            cmbRating.Items.Add("-");
-            for (int i = 1; i <= 5; i++)
-            {
-                cmbRating.Items.Add(i.ToString());
-            }
-            cmbRating.SelectedIndex = -1;
         }
 
         private void BtnAddSection_Click(object? sender, EventArgs e)
@@ -74,6 +77,12 @@ namespace PersonalLibrary.Forms
                 return;
             }
 
+            if (numRating.Value < 0 || numRating.Value > 5)
+            {
+                 MessageBox.Show("Оцінка має бути від 0 до 5!", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                 return;
+            }
+
             if (!string.IsNullOrEmpty(error))
             {
                 MessageBox.Show(error, "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -91,20 +100,8 @@ namespace PersonalLibrary.Forms
                 ISBN = txtISBN?.Text,
                 Origin = txtOrigin?.Text,
                 Status = selectedStatus,
-                Rating = cmbRating.SelectedIndex != -1 ? new UserRating { Score = cmbRating.SelectedIndex + 1, Review = txtReview?.Text ?? string.Empty } : null
+                Rating = numRating.Value > 0 ? new UserRating { Score = (int)numRating.Value, Review = txtReview?.Text ?? string.Empty } : null
             };
-
-            var selectedSectionName = cmbSection.SelectedItem?.ToString();
-            var targetSection = _library.Sections.FirstOrDefault(s => s.Name == selectedSectionName);
-
-            if (targetSection == null)
-            {
-                MessageBox.Show("Не вдалося визначити розділ.", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                DialogResult = DialogResult.Cancel;
-                return;
-            }
-
-            targetSection.AddBook(Book);
 
             DialogResult = DialogResult.OK;
         }
@@ -114,9 +111,11 @@ namespace PersonalLibrary.Forms
             DialogResult = DialogResult.Cancel;
         }
 
-        private void CmbRating_SelectedIndexChanged(object sender, EventArgs e)
+        private void NumRating_ValueChanged(object? sender, EventArgs e)
         {
-            txtReview.Enabled = cmbRating.SelectedIndex != -1;
+            txtReview.Enabled = numRating.Value > 0;
+            numRating.Text = numRating.Value.ToString();
+            numRating.Refresh();
         }
     }
 } 

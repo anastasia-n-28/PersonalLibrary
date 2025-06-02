@@ -33,7 +33,6 @@ namespace PersonalLibrary.Models
             return error;
         }
         public string StatusText => Status.ToString();
-        public string RatingText => Rating != null ? new string('★', Rating.Score) + new string('☆', 5 - Rating.Score) : "";
+        public string RatingText => Rating != null && Rating.Score >= 1 && Rating.Score <= 5 ? Rating.Score.ToString() : "";
     }
-
 }

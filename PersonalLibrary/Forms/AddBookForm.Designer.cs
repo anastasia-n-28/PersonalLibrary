@@ -12,9 +12,9 @@ namespace PersonalLibrary.Forms
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.ComboBox cmbStatus;
         public System.Windows.Forms.ComboBox cmbSection;
-        private System.Windows.Forms.ComboBox cmbRating;
-        private System.Windows.Forms.TextBox txtReview;
         private System.Windows.Forms.Button btnAddSection;
+        private System.Windows.Forms.NumericUpDown numRating;
+        private System.Windows.Forms.TextBox txtReview;
 
         #region Windows Form Designer generated code
 
@@ -35,8 +35,8 @@ namespace PersonalLibrary.Forms
             this.cmbStatus = new System.Windows.Forms.ComboBox();
             this.cmbSection = new System.Windows.Forms.ComboBox();
             this.btnAddSection = new System.Windows.Forms.Button();
-            this.cmbRating = new System.Windows.Forms.ComboBox();
             this.txtReview = new System.Windows.Forms.TextBox();
+            this.numRating = new System.Windows.Forms.NumericUpDown();
             this.SuspendLayout();
             // 
             // txtTitle
@@ -108,31 +108,41 @@ namespace PersonalLibrary.Forms
             this.cmbStatus.Location = new System.Drawing.Point(20, 300);
             this.cmbStatus.Name = "cmbStatus";
             this.cmbStatus.Size = new System.Drawing.Size(200, 23);
-            this.cmbStatus.TabIndex = 6;
+            this.cmbStatus.TabIndex = 8;
             this.cmbStatus.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             // 
-            // cmbRating
+            // numRating
             // 
-            this.cmbRating.Location = new System.Drawing.Point(20, 340);
-            this.cmbRating.Name = "cmbRating";
-            this.cmbRating.Size = new System.Drawing.Size(200, 23);
-            this.cmbRating.TabIndex = 8;
-            this.cmbRating.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.numRating.Location = new System.Drawing.Point(20, 340);
+            this.numRating.Name = "numRating";
+            this.numRating.Size = new System.Drawing.Size(200, 23);
+            this.numRating.TabIndex = 9;
+            this.numRating.Minimum = 0;
+            this.numRating.Maximum = 5;
+            this.numRating.DecimalPlaces = 0;
+            this.numRating.Increment = 1;
+            this.numRating.Value = 0;
+            this.numRating.ThousandsSeparator = false;
+            this.numRating.ReadOnly = false;
+            this.numRating.TabStop = true;
+            this.numRating.InterceptArrowKeys = true;
+            this.numRating.Enabled = true;
             // 
             // txtReview
             // 
             this.txtReview.Location = new System.Drawing.Point(20, 380);
             this.txtReview.Name = "txtReview";
             this.txtReview.Size = new System.Drawing.Size(200, 23);
-            this.txtReview.TabIndex = 9;
+            this.txtReview.TabIndex = 10;
             this.txtReview.PlaceholderText = "Відгук (опціонально)";
+            this.txtReview.Enabled = true;
             // 
             // btnOK
             // 
             this.btnOK.Location = new System.Drawing.Point(20, 440);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(90, 30);
-            this.btnOK.TabIndex = 7;
+            this.btnOK.TabIndex = 11;
             this.btnOK.Text = "OK";
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.BtnOK_Click);
@@ -142,7 +152,7 @@ namespace PersonalLibrary.Forms
             this.btnCancel.Location = new System.Drawing.Point(130, 440);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(90, 30);
-            this.btnCancel.TabIndex = 8;
+            this.btnCancel.TabIndex = 12;
             this.btnCancel.Text = "Скасувати";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
@@ -163,10 +173,11 @@ namespace PersonalLibrary.Forms
             this.Controls.Add(this.cmbStatus);
             this.Controls.Add(this.cmbSection);
             this.Controls.Add(this.btnAddSection);
-            this.Controls.Add(this.cmbRating);
+            this.Controls.Add(this.numRating);
             this.Controls.Add(this.txtReview);
             this.Name = "AddBookForm";
             this.Text = "Додати книгу";
+            ((System.ComponentModel.ISupportInitialize)(this.numRating)).BeginInit();
             this.ResumeLayout(false);
             this.PerformLayout();
         }

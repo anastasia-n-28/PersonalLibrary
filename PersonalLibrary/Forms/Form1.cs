@@ -20,7 +20,7 @@ namespace PersonalLibrary
         private readonly BindingSource booksBindingSource = [];
         private bool _isLibraryModified = false;
         private bool _isAdvancedSearchFormOpen = false;
-
+        
         public Form1()
         {
             InitializeComponent();
@@ -62,15 +62,15 @@ namespace PersonalLibrary
         private void Form1_FormClosing(object? sender, FormClosingEventArgs e)
         {
             if (_isLibraryModified)
+        {
+            var result = MessageBox.Show("Зберегти зміни перед виходом?", "Зберегти зміни", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
             {
-                var result = MessageBox.Show("Зберегти зміни перед виходом?", "Зберегти зміни", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-                if (result == DialogResult.Yes)
-                {
-                    SaveLibrary();
-                }
-                else if (result == DialogResult.Cancel)
-                {
-                    e.Cancel = true;
+                SaveLibrary();
+            }
+            else if (result == DialogResult.Cancel)
+            {
+                e.Cancel = true;
                 }
             }
         }
@@ -87,7 +87,6 @@ namespace PersonalLibrary
             if (results == null || !results.Any())
             {
                 MessageBox.Show("Книг не знайдено", "Пошук", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                booksBindingSource.DataSource = new List<BookView>();
             }
         }
 
@@ -130,9 +129,9 @@ namespace PersonalLibrary
                         {
                             var section = _library.Sections.FirstOrDefault(s => s.Name == sectionName);
                             if (section != null)
-                            {
-                                section.AddBook(form.Book);
-                                UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
+                    {
+                        section.AddBook(form.Book);
+                        UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
                                 SaveLibrary();
                                 _isLibraryModified = true;
                             }
@@ -156,8 +155,8 @@ namespace PersonalLibrary
                 {
                     using var form = new EditBookForm(selectedBook, _library, _library.Sections);
                     if (form.ShowDialog() == DialogResult.OK)
-                    {
-                        UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
+                {
+                    UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
                         SaveLibrary();
                         _isLibraryModified = true;
                     }
@@ -177,19 +176,19 @@ namespace PersonalLibrary
                 var selectedBook = selectedView.BookRef;
                 if (selectedBook != null && _library != null)
                 {
-                    var confirm = MessageBox.Show("Ви дійсно хочете видалити цю книгу?", "Підтвердження", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if (confirm != DialogResult.Yes) return;
+            var confirm = MessageBox.Show("Ви дійсно хочете видалити цю книгу?", "Підтвердження", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (confirm != DialogResult.Yes) return;
 
                     if (selectedBook.ISBN != null)
                     {
                         var section = _library.Sections.FirstOrDefault(s => s.Books.Any(b => b.ISBN == selectedBook.ISBN));
-                        if (section != null)
-                        {
+            if (section != null)
+            {
                             var bookToRemove = section.Books.FirstOrDefault(b => b.ISBN == selectedBook.ISBN);
                             if (bookToRemove != null)
                             {
                                 section.Books.Remove(bookToRemove);
-                                UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
+                UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
                                 SaveLibrary();
                                 _isLibraryModified = true;
                             }
@@ -360,8 +359,8 @@ namespace PersonalLibrary
                 SyncBooksFromGrid();
                 if (_library != null)
                 {
-                    _library.SerializeData(DataFile);
-                    MessageBox.Show("Дані успішно збережено!", "Збереження", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                _library.SerializeData(DataFile);
+                MessageBox.Show("Дані успішно збережено!", "Збереження", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     _isLibraryModified = false;
                 }
                 else
@@ -394,7 +393,7 @@ namespace PersonalLibrary
 
                     if (_library != null)
                     {
-                        UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
+                    UpdateDataGridView(_library.Sections.SelectMany(s => s.Books));
                     }
                 }
                 else

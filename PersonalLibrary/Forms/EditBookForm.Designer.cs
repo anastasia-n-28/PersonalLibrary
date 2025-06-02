@@ -102,7 +102,7 @@ namespace PersonalLibrary.Forms
             this.cmbStatus.Location = new System.Drawing.Point(20, 300);
             this.cmbStatus.Name = "cmbStatus";
             this.cmbStatus.Size = new System.Drawing.Size(200, 23);
-            this.cmbStatus.TabIndex = 6;
+            this.cmbStatus.TabIndex = 8;
             this.cmbStatus.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             // 
             // numRating
@@ -110,7 +110,7 @@ namespace PersonalLibrary.Forms
             this.numRating.Location = new System.Drawing.Point(20, 340);
             this.numRating.Name = "numRating";
             this.numRating.Size = new System.Drawing.Size(200, 23);
-            this.numRating.TabIndex = 8;
+            this.numRating.TabIndex = 9;
             this.numRating.Minimum = 1;
             this.numRating.Maximum = 5;
             // 
@@ -119,7 +119,7 @@ namespace PersonalLibrary.Forms
             this.txtReview.Location = new System.Drawing.Point(20, 380);
             this.txtReview.Name = "txtReview";
             this.txtReview.Size = new System.Drawing.Size(200, 23);
-            this.txtReview.TabIndex = 9;
+            this.txtReview.TabIndex = 10;
             this.txtReview.PlaceholderText = "Відгук (опціонально)";
             // 
             // btnOK
@@ -127,7 +127,7 @@ namespace PersonalLibrary.Forms
             this.btnOK.Location = new System.Drawing.Point(20, 440);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(90, 30);
-            this.btnOK.TabIndex = 7;
+            this.btnOK.TabIndex = 11;
             this.btnOK.Text = "OK";
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.BtnOK_Click);
@@ -137,7 +137,7 @@ namespace PersonalLibrary.Forms
             this.btnCancel.Location = new System.Drawing.Point(130, 440);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(90, 30);
-            this.btnCancel.TabIndex = 8;
+            this.btnCancel.TabIndex = 12;
             this.btnCancel.Text = "Скасувати";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);

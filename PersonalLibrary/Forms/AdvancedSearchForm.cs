@@ -131,7 +131,6 @@ namespace PersonalLibrary.Forms
                 AutoGenerateColumns = false
             };
 
-            // Додаємо колонки вручну для відображення BookView
             dgvResults.Columns.AddRange(
                 [
                     new DataGridViewTextBoxColumn { Name = "Section", HeaderText = "Розділ", DataPropertyName = "Section" },
@@ -159,7 +158,6 @@ namespace PersonalLibrary.Forms
         {
             try
             {
-                // Отримуємо всі книги
                 var results = _library.Sections.SelectMany(s => s.Books).ToList();
 
                 // Фільтруємо за назвою
@@ -219,7 +217,6 @@ namespace PersonalLibrary.Forms
                     }
                 }
 
-                // Оновлюємо результати
                 SearchResults = results;
                 var bookViews = SearchResults.Select(book => new BookView
                 {
@@ -239,7 +236,6 @@ namespace PersonalLibrary.Forms
                 dgvResults.DataSource = null;
                 dgvResults.DataSource = bookViews;
 
-                // Встановлюємо DialogResult.OK, щоб форма повернула результати
                 this.DialogResult = DialogResult.OK;
             }
             catch (Exception ex)
@@ -253,7 +249,6 @@ namespace PersonalLibrary.Forms
             this.DialogResult = DialogResult.Cancel;
         }
 
-        // Додаємо клас BookView для відображення у DataGridView
         public class BookView
         {
             public string? Section { get; set; }
