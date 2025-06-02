@@ -122,8 +122,8 @@
 
             // addToolStripMenuItem
             this.addToolStripMenuItem.Name = "addToolStripMenuItem";
-            this.addToolStripMenuItem.Size = new System.Drawing.Size(60, 20);
-            this.addToolStripMenuItem.Text = "Додати";
+            this.addToolStripMenuItem.Size = new System.Drawing.Size(100, 20);
+            this.addToolStripMenuItem.Text = "Додати книгу";
 
             // editToolStripMenuItem
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
